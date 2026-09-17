@@ -2,7 +2,14 @@ import { Box, Skeleton, Stack } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { neutral } from "@/lib/tokens";
 
-const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], py: 3 };
+const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pb: 3 };
+// the hero's reserved height
+const hero: SxProps<Theme> = {
+  height: { xs: 420, md: "56vh" },
+  minHeight: 360,
+  bgcolor: neutral[900],
+};
+const rows: SxProps<Theme> = { pt: 3 };
 const heading: SxProps<Theme> = {
   // gutter
   mx: { xs: 2, md: 3 },
@@ -35,7 +42,8 @@ const TILES = 8;
 export default function Loading() {
   return (
     <Box component="main" sx={main}>
-      <Stack spacing={4}>
+      <Skeleton variant="rectangular" sx={hero} />
+      <Stack spacing={4} sx={rows}>
         {Array.from({ length: ROWS }).map((_, row) => (
           <Stack key={row} component="section" spacing={1.5}>
             <Skeleton variant="rectangular" sx={heading} />

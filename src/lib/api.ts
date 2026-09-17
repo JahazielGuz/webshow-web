@@ -1,4 +1,4 @@
-import type { BrowseResponse, Movie } from "@/lib/types";
+import type { BrowseResponse, Movie, MoviesResponse } from "@/lib/types";
 
 const baseUrl = process.env.API_BASE_URL;
 
@@ -22,6 +22,25 @@ export function getHealth() {
 
 export function getBrowse() {
   return apiGet<BrowseResponse>("/browse");
+}
+
+export type MoviesQuery = {
+  genre?: string;
+  page?: number;
+  limit?: number;
+};
+
+// GET /movies?genre=&page=&limit= — every param is optional, so only the given ones are sent
+export function getMovies(query: MoviesQuery = {}) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined) {
+      params.set(key, String(value));
+    }
+  }
+
+  return apiGet<MoviesResponse>(`/movies?${params}`);
 }
 
 export async function getMovie(id: string): Promise<Movie | null> {
