@@ -1,0 +1,152 @@
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { loadYouTubeApi } from "@/lib/youtubeApi";
+
+export type PlayerStatus = "loading" | "playing" | "paused" | "buffering" | "ended";
+
+export type YouTubePlayerOptions = {
+  videoId: string;
+  autoplay: boolean;
+};
+
+const POLL_MS = 250;
+
+// Drives one YouTube player mounted inside `hostRef` and mirrors its real state into React
+export function useYouTubePlayer(
+  hostRef: RefObject<HTMLDivElement | null>,
+  { videoId, autoplay }: YouTubePlayerOptions,
+) {
+  const playerRef = useRef<YT.Player | null>(null);
+  const [status, setStatus] = useState<PlayerStatus>("loading");
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    const host = hostRef.current;
+
+    if (host === null) {
+      return;
+    }
+
+    let cancelled = false;
+    // The API replaces this element with its iframe, so give it one of its own to consume
+    const mount = document.createElement("div");
+    host.append(mount);
+
+    loadYouTubeApi().then((api) => {
+      if (cancelled) {
+        return;
+      }
+
+      const states: Partial<Record<YT.PlayerState, PlayerStatus>> = {
+        [api.PlayerState.PLAYING]: "playing",
+        [api.PlayerState.PAUSED]: "paused",
+        [api.PlayerState.BUFFERING]: "buffering",
+        [api.PlayerState.ENDED]: "ended",
+        [api.PlayerState.CUED]: "paused",
+      };
+
+      playerRef.current = new api.Player(mount, {
+        videoId,
+        host: "https://www.youtube-nocookie.com",
+        playerVars: {
+          autoplay: autoplay ? 1 : 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          rel: 0,
+          iv_load_policy: 3,
+          cc_load_policy: 0,
+          playsinline: 1,
+          origin: window.location.origin,
+        },
+        events: {
+          onReady: (event) => {
+            // cc_load_policy alone does not keep captions off; the API can drop the module
+            event.target.unloadModule("captions");
+            event.target.unloadModule("cc");
+            setDuration(event.target.getDuration());
+            setMuted(event.target.isMuted());
+          },
+          onStateChange: (event) => {
+            const next = states[event.data];
+
+            if (next !== undefined) {
+              setStatus(next);
+            }
+
+            if (event.data === api.PlayerState.PLAYING) {
+              setDuration(event.target.getDuration());
+            }
+          },
+        },
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      playerRef.current?.destroy();
+      playerRef.current = null;
+      mount.remove();
+    };
+  }, [hostRef, videoId, autoplay]);
+
+  // While playing, keep the clock in step with the player
+  useEffect(() => {
+    if (status !== "playing") {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      const player = playerRef.current;
+
+      if (player !== null) {
+        setCurrentTime(player.getCurrentTime());
+      }
+    }, POLL_MS);
+
+    return () => window.clearInterval(timer);
+  }, [status]);
+
+  function play() {
+    playerRef.current?.playVideo();
+  }
+
+  function pause() {
+    playerRef.current?.pauseVideo();
+  }
+
+  function seekTo(seconds: number) {
+    const player = playerRef.current;
+
+    if (player === null) {
+      return;
+    }
+
+    const target = Math.min(Math.max(seconds, 0), duration);
+    player.seekTo(target, true);
+    setCurrentTime(target);
+  }
+
+  function seekBy(delta: number) {
+    seekTo(currentTime + delta);
+  }
+
+  function toggleMute() {
+    const player = playerRef.current;
+
+    if (player === null) {
+      return;
+    }
+
+    if (player.isMuted()) {
+      player.unMute();
+      setMuted(false);
+    } else {
+      player.mute();
+      setMuted(true);
+    }
+  }
+
+  return { status, currentTime, duration, muted, play, pause, seekTo, seekBy, toggleMute };
+}

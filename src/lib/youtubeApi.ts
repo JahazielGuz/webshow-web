@@ -5,6 +5,15 @@ declare global {
     YT: typeof YT;
     onYouTubeIframeAPIReady?: () => void;
   }
+
+  // Augmenting @types/youtube's global namespace is the only way to add a method to YT.Player
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace YT {
+    // Present on the real player but missing from @types/youtube
+    interface Player {
+      unloadModule(moduleName: string): void;
+    }
+  }
 }
 
 const API_SRC = "https://www.youtube.com/iframe_api";
