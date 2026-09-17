@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { CSSProperties } from "react";
 import { focusRing, neutral, transition } from "@/lib/tokens";
-import type { PlayerExit } from "@/lib/playerExit";
+import type { OverlayExit } from "@/lib/overlayExit";
 
 const shell: SxProps<Theme> = {
   // the whole viewport, above everything else
@@ -48,7 +48,7 @@ export type PlayerNoticeProps = {
   heading: string;
   text: string;
   backdropUrl: string | null;
-  exit: PlayerExit;
+  exit: OverlayExit;
 };
 
 // The player's full-viewport message screen: no trailer, or no such movie

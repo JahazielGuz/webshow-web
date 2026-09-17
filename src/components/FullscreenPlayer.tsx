@@ -1,12 +1,12 @@
 import { PlayerNotice } from "@/components/PlayerNotice";
 import { TrailerPlayer } from "@/components/TrailerPlayer";
-import type { PlayerExit } from "@/lib/playerExit";
+import type { OverlayExit } from "@/lib/overlayExit";
 import type { Movie } from "@/lib/types";
 import { youtubeVideoId } from "@/lib/youtube";
 
 export type FullscreenPlayerProps = {
   movie: Movie | null;
-  exit: PlayerExit;
+  exit: OverlayExit;
 };
 
 // Hands the viewport to the trailer player, or explains why it cannot

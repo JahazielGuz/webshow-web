@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { PlayerControls } from "@/components/PlayerControls";
 import { PlayerIcon } from "@/components/PlayerIcon";
 import { PlayerNotice } from "@/components/PlayerNotice";
-import type { PlayerExit } from "@/lib/playerExit";
+import type { OverlayExit } from "@/lib/overlayExit";
 import { focusRing, neutral } from "@/lib/tokens";
 import { useYouTubePlayer } from "@/lib/useYouTubePlayer";
 
@@ -100,7 +100,7 @@ export type TrailerPlayerProps = {
   videoId: string;
   title: string;
   coverUrl: string | null;
-  exit: PlayerExit;
+  exit: OverlayExit;
 };
 
 export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerProps) {
