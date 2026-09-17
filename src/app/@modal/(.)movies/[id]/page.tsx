@@ -22,7 +22,7 @@ export default async function MovieModalPage({ params }: MovieModalPageProps) {
   // A stale link (for example after a reseed) gets a small message, not a full-page 404
   if (movie === null) {
     return (
-      <MovieModal title="Movie not found">
+      <MovieModal title="Movie not found" exit="back">
         <Stack spacing={1} sx={missing}>
           <Typography component="h2" id="movie-title" sx={missingTitle}>
             Movie not found
@@ -36,7 +36,7 @@ export default async function MovieModalPage({ params }: MovieModalPageProps) {
   const start = randomStart();
 
   return (
-    <MovieModal title={movie.title}>
+    <MovieModal title={movie.title} exit="back">
       <MovieDetail movie={movie} start={start} />
     </MovieModal>
   );
