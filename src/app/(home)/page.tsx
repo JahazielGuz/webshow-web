@@ -1,7 +1,7 @@
 import { GenreRow } from "@/components/GenreRow";
 import { getBrowse } from "@/lib/api";
 
-const main = "min-h-dvh bg-neutral-950 py-6 ";
+const main = "min-h-dvh bg-neutral-950 py-6";
 const stack = "space-y-8";
 const empty = "px-4 py-16 text-center text-neutral-400 md:px-6";
 

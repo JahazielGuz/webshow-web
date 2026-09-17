@@ -9,12 +9,21 @@ export type GenreRowProps = {
 };
 
 const section = "space-y-3";
-const heading = cn("px-4 md:px-6", "text-lg font-semibold text-neutral-100"); // gutter + type
+const heading = cn(
+  // gutter
+  "px-4 md:px-6",
+  // type
+  "text-lg font-semibold text-neutral-100",
+);
 const strip = cn(
-  "flex gap-4 overflow-x-auto", // horizontal scroll strip
-  "px-4 md:px-6", // side gutters (align with heading)
-  "scroll-px-4 md:scroll-px-6", // keep a focused tile off edge
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40", // scroller focus ring
+  // horizontal scroll strip
+  "flex gap-4 overflow-x-auto",
+  // side gutters (align with heading)
+  "px-4 md:px-6",
+  // keep a focused tile off the edge
+  "scroll-px-4 md:scroll-px-6",
+  // scroller focus ring
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
 );
 
 export function GenreRow({ genre, movies, priority = false }: GenreRowProps) {
