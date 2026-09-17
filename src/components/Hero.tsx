@@ -3,6 +3,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { NavLink } from "@/components/NavLink";
+import { PlayerIcon } from "@/components/PlayerIcon";
 import { formatRuntime } from "@/lib/format";
 import { focusRing, neutral, transition } from "@/lib/tokens";
 import type { Movie } from "@/lib/types";
@@ -52,24 +53,33 @@ const overview: SxProps<Theme> = {
   lineHeight: 1.5,
   color: neutral[200],
 };
-const cta: SxProps<Theme> = {
-  // primary button
-  alignSelf: "flex-start",
+const actions: SxProps<Theme> = { display: "flex", gap: 1.5, pt: 0.5 };
+// the two buttons share a shape; Play is white, More info is Netflix's translucent grey
+const action = {
   display: "inline-flex",
   alignItems: "center",
+  gap: 1,
   borderRadius: 1,
   px: 3,
   py: 1.25,
   fontSize: "1rem",
   fontWeight: 600,
-  // colour
+  transition,
+  ...focusRing,
+} as const;
+const play: SxProps<Theme> = {
+  ...action,
   bgcolor: "#fff",
   color: neutral[900],
-  // interaction
-  transition,
   "&:hover": { bgcolor: neutral[200] },
-  ...focusRing,
 };
+const info: SxProps<Theme> = {
+  ...action,
+  bgcolor: "rgba(109, 109, 110, 0.7)",
+  color: "#fff",
+  "&:hover": { bgcolor: "rgba(109, 109, 110, 0.4)" },
+};
+const playIcon: SxProps<Theme> = { fontSize: 24 };
 
 export type HeroProps = {
   movie: Movie;
@@ -93,9 +103,17 @@ export function Hero({ movie }: HeroProps) {
         </Typography>
         <Typography sx={meta}>{metaLine}</Typography>
         {movie.overview !== "" && <Typography sx={overview}>{movie.overview}</Typography>}
-        <NavLink href={`/movies/${movie.id}`} sx={cta}>
-          More info
-        </NavLink>
+        <Box sx={actions}>
+          {movie.trailerUrl !== null && (
+            <NavLink href={`/watch/${movie.id}`} sx={play}>
+              <PlayerIcon name="play" sx={playIcon} />
+              Play
+            </NavLink>
+          )}
+          <NavLink href={`/movies/${movie.id}`} sx={info}>
+            More info
+          </NavLink>
+        </Box>
       </Stack>
     </Box>
   );

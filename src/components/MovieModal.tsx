@@ -4,6 +4,7 @@ import { Dialog, IconButton } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import type { OverlayExit } from "@/lib/overlayExit";
 import { focusRing, neutral, transition } from "@/lib/tokens";
 
 const paper: SxProps<Theme> = {
@@ -42,28 +43,34 @@ const close: SxProps<Theme> = {
 
 export type MovieModalProps = {
   title: string;
+  exit: OverlayExit;
   children: ReactNode;
 };
 
-export function MovieModal({ title, children }: MovieModalProps) {
+export function MovieModal({ title, exit, children }: MovieModalProps) {
   const router = useRouter();
 
-  // Esc, the backdrop and the close button all leave the modal route the same way
-  function goBack() {
-    router.back();
+  // Esc, the backdrop and the close button all leave the same way: back to the page the viewer
+  // came from, or to the browse page when this URL was loaded directly
+  function leave() {
+    if (exit === "back") {
+      router.back();
+    } else {
+      router.push("/");
+    }
   }
 
   return (
     <Dialog
       open
-      onClose={goBack}
+      onClose={leave}
       maxWidth={false}
       transitionDuration={0}
       aria-labelledby="movie-title"
       aria-label={title}
       slotProps={{ paper: { sx: paper }, backdrop: { sx: backdrop } }}
     >
-      <IconButton aria-label="Close" onClick={goBack} sx={close}>
+      <IconButton aria-label="Close" onClick={leave} sx={close}>
         &times;
       </IconButton>
       {children}

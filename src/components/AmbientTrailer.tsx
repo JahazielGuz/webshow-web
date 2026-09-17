@@ -5,11 +5,12 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { neutral } from "@/lib/tokens";
-import { loadYouTubeApi } from "@/lib/youtubeApi";
+import { hideCaptions, loadYouTubeApi } from "@/lib/youtubeApi";
 
-// YouTube draws its title bar, a play bezel and captions for the first seconds of playback;
-// the cover stays up until they are gone
-const REVEAL_DELAY_MS = 3500;
+// The banner stays this long after the clip mounts, and no longer once the video is playing
+const BANNER_MS = 2000;
+// ...then crossfades into the video
+const FADE_MS = 600;
 // The player is scaled up and clipped, so the strips where YouTube draws its chrome fall
 // outside the visible box
 const CROP_SCALE = 1.3;
@@ -32,12 +33,11 @@ const stage: SxProps<Theme> = {
   "& iframe": { width: "100%", height: "100%", border: 0 },
 };
 const cover: SxProps<Theme> = {
-  // the backdrop, fading out once the video is really playing
+  // the backdrop, crossfading into the video once it is up; back at once if the video stops
   position: "absolute",
   inset: 0,
   bgcolor: neutral[800],
   pointerEvents: "none",
-  transition: "opacity 700ms ease",
 };
 const coverImage: CSSProperties = { objectFit: "cover" };
 
@@ -52,7 +52,11 @@ export type AmbientTrailerProps = {
 export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: AmbientTrailerProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player | null>(null);
-  const [revealed, setRevealed] = useState(false);
+  // The banner has had its time
+  const [bannerDone, setBannerDone] = useState(false);
+  // YouTube reports the video as playing; buffering keeps it, paused and ended clear it
+  const [playing, setPlaying] = useState(false);
+  const revealed = bannerDone && playing;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -62,7 +66,7 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
     }
 
     let cancelled = false;
-    let revealTimer = 0;
+    const bannerTimer = window.setTimeout(() => setBannerDone(true), BANNER_MS);
     // The API replaces this element with its iframe, so give it one of its own to consume
     const mount = document.createElement("div");
     host.append(mount);
@@ -83,7 +87,6 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
           fs: 0,
           rel: 0,
           iv_load_policy: 3,
-          cc_load_policy: 0,
           playsinline: 1,
           loop: 1,
           playlist: videoId,
@@ -93,11 +96,20 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
         events: {
           onReady: (event) => {
             event.target.mute();
+            hideCaptions(event.target);
             event.target.playVideo();
           },
           onStateChange: (event) => {
             if (event.data === api.PlayerState.PLAYING) {
-              revealTimer = window.setTimeout(() => setRevealed(true), REVEAL_DELAY_MS);
+              hideCaptions(event.target);
+              setPlaying(true);
+            } else if (
+              event.data === api.PlayerState.PAUSED ||
+              event.data === api.PlayerState.ENDED
+            ) {
+              // YouTube's paused and end screens must never show (a hidden tab pauses the
+              // clip, a loop restart ends it): back under the banner until it plays again
+              setPlaying(false);
             }
           },
         },
@@ -106,7 +118,7 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
 
     return () => {
       cancelled = true;
-      window.clearTimeout(revealTimer);
+      window.clearTimeout(bannerTimer);
       playerRef.current?.destroy();
       playerRef.current = null;
       mount.remove();
@@ -131,7 +143,13 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
   return (
     <Box sx={box} aria-label={`${title} trailer`} role="img">
       <Box ref={hostRef} sx={stage} />
-      <Box sx={cover} style={{ opacity: revealed ? 0 : 1 }}>
+      <Box
+        sx={cover}
+        style={{
+          opacity: revealed ? 0 : 1,
+          transition: revealed ? `opacity ${FADE_MS}ms ease` : "none",
+        }}
+      >
         {coverUrl !== null && (
           <Image
             src={coverUrl}

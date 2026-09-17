@@ -5,6 +5,15 @@ declare global {
     YT: typeof YT;
     onYouTubeIframeAPIReady?: () => void;
   }
+
+  // Augmenting @types/youtube's global namespace is the only way to add a method to YT.Player
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace YT {
+    // Present on the real player but missing from @types/youtube
+    interface Player {
+      setOption(module: string, option: string, value: unknown): void;
+    }
+  }
 }
 
 const API_SRC = "https://www.youtube.com/iframe_api";
@@ -29,4 +38,11 @@ export function loadYouTubeApi(): Promise<typeof YT> {
   }
 
   return ready;
+}
+
+// YouTube turns captions on by itself for some videos, whatever cc_load_policy says; clearing
+// the caption track is the one setting that sticks. Call it once the player is ready and again
+// when playback starts, when the module is certainly loaded.
+export function hideCaptions(player: YT.Player) {
+  player.setOption("captions", "track", {});
 }

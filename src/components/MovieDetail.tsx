@@ -18,6 +18,7 @@ export function MovieDetail({ movie, start }: MovieDetailProps) {
   return (
     <Box component="article">
       <TrailerHeader
+        movieId={movie.id}
         title={movie.title}
         trailerUrl={movie.trailerUrl}
         backdropUrl={movie.backdropUrl}

@@ -90,7 +90,7 @@ export function HoverCard({ movie, anchor }: HoverCardProps) {
     <Box sx={card} style={placeOver(anchor)}>
       <Link
         component={NextLink}
-        href={`/movies/${movie.id}`}
+        href={`/watch/${movie.id}`}
         aria-label={movie.title}
         underline="none"
         sx={poster}

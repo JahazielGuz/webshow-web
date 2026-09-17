@@ -1,14 +1,16 @@
 "use client";
 
-import { Box, Button, IconButton, SvgIcon } from "@mui/material";
+import { Box, Button, IconButton } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
+import NextLink from "next/link";
 import { useState, type CSSProperties } from "react";
 import { AmbientTrailer } from "@/components/AmbientTrailer";
+import { PlayerIcon } from "@/components/PlayerIcon";
 import { SpeakerIcon } from "@/components/SpeakerIcon";
 import { TitleTreatment } from "@/components/TitleTreatment";
 import { focusRing, neutral, transition } from "@/lib/tokens";
-import { youtubeEmbedUrl, youtubeVideoId } from "@/lib/youtube";
+import { youtubeVideoId } from "@/lib/youtube";
 
 // 16:9 header box
 const box: SxProps<Theme> = {
@@ -16,13 +18,6 @@ const box: SxProps<Theme> = {
   aspectRatio: "16 / 9",
   overflow: "hidden",
   bgcolor: neutral[800],
-};
-const player: CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  height: "100%",
-  width: "100%",
-  border: 0,
 };
 const backdrop: CSSProperties = { objectFit: "cover" };
 const controls: SxProps<Theme> = { display: "flex", alignItems: "center", gap: 1.5, pt: 1 };
@@ -60,6 +55,7 @@ const mute: SxProps<Theme> = {
 };
 
 export type TrailerHeaderProps = {
+  movieId: string;
   title: string;
   trailerUrl: string | null;
   backdropUrl: string | null;
@@ -69,6 +65,7 @@ export type TrailerHeaderProps = {
 };
 
 export function TrailerHeader({
+  movieId,
   title,
   trailerUrl,
   backdropUrl,
@@ -77,28 +74,7 @@ export function TrailerHeader({
   start,
 }: TrailerHeaderProps) {
   const videoId = trailerUrl === null ? null : youtubeVideoId(trailerUrl);
-  const [mode, setMode] = useState<"ambient" | "full">("ambient");
   const [muted, setMuted] = useState(true);
-
-  if (videoId !== null && mode === "full") {
-    return (
-      <Box sx={box}>
-        <iframe
-          src={youtubeEmbedUrl(videoId, {
-            autoplay: 1,
-            controls: 1,
-            rel: 0,
-            playsinline: 1,
-            start: 0,
-          })}
-          title={`${title} trailer`}
-          allow="autoplay; encrypted-media"
-          allowFullScreen
-          style={player}
-        />
-      </Box>
-    );
-  }
 
   return (
     <Box sx={box}>
@@ -123,10 +99,8 @@ export function TrailerHeader({
       <TitleTreatment title={title} releaseYear={releaseYear} runtime={runtime}>
         {videoId !== null && (
           <Box sx={controls}>
-            <Button type="button" sx={play} onClick={() => setMode("full")}>
-              <SvgIcon viewBox="0 0 24 24" sx={playIcon} aria-hidden="true">
-                <path d="M8 5v14l11-7z" />
-              </SvgIcon>
+            <Button component={NextLink} href={`/watch/${movieId}`} sx={play}>
+              <PlayerIcon name="play" sx={playIcon} />
               Play
             </Button>
             <IconButton
