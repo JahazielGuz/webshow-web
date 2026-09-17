@@ -6,6 +6,11 @@ if (!baseUrl) {
   throw new Error("API_BASE_URL is not set");
 }
 
+// The API's address, for the auth calls, which read status codes themselves instead of throwing
+export function apiUrl(path: string): string {
+  return `${baseUrl}${path}`;
+}
+
 async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(`${baseUrl}${path}`, { cache: "no-store" });
 
