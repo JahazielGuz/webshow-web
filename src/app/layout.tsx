@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeRegistry } from "@/components/ThemeRegistry";
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export default function RootLayout({ children, modal }: LayoutProps<"/">) {
     <html lang="en">
       <body>
         <ThemeRegistry>
+          <SiteHeader />
           {children}
           {modal}
         </ThemeRegistry>
