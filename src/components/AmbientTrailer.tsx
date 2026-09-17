@@ -5,11 +5,12 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { neutral } from "@/lib/tokens";
-import { loadYouTubeApi } from "@/lib/youtubeApi";
+import { hideCaptions, loadYouTubeApi } from "@/lib/youtubeApi";
 
-// YouTube draws its title bar, a play bezel and captions for the first seconds of playback;
-// the cover stays up until they are gone
-const REVEAL_DELAY_MS = 3500;
+// YouTube keeps its own play/pause button in the centre of the picture for about four seconds
+// after playback starts; the cover stays up until it is gone (the title bar it also draws
+// falls outside the visible box, see CROP_SCALE)
+const REVEAL_DELAY_MS = 4200;
 // The player is scaled up and clipped, so the strips where YouTube draws its chrome fall
 // outside the visible box
 const CROP_SCALE = 1.3;
@@ -37,7 +38,7 @@ const cover: SxProps<Theme> = {
   inset: 0,
   bgcolor: neutral[800],
   pointerEvents: "none",
-  transition: "opacity 700ms ease",
+  transition: "opacity 300ms ease",
 };
 const coverImage: CSSProperties = { objectFit: "cover" };
 
@@ -83,7 +84,6 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
           fs: 0,
           rel: 0,
           iv_load_policy: 3,
-          cc_load_policy: 0,
           playsinline: 1,
           loop: 1,
           playlist: videoId,
@@ -93,11 +93,21 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
         events: {
           onReady: (event) => {
             event.target.mute();
+            hideCaptions(event.target);
             event.target.playVideo();
           },
           onStateChange: (event) => {
             if (event.data === api.PlayerState.PLAYING) {
+              hideCaptions(event.target);
               revealTimer = window.setTimeout(() => setRevealed(true), REVEAL_DELAY_MS);
+            } else if (
+              event.data === api.PlayerState.PAUSED ||
+              event.data === api.PlayerState.ENDED
+            ) {
+              // YouTube's paused and end screens must never show (a hidden tab pauses the
+              // clip, a loop restart ends it): back under the cover until it plays again
+              window.clearTimeout(revealTimer);
+              setRevealed(false);
             }
           },
         },
