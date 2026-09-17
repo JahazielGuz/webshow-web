@@ -4,8 +4,6 @@ Netflix-style catalogue frontend for the webshow portfolio. Built with the Next.
 server components fetch the [webshow-core](../webshow-core) API and render genre rows of poster
 tiles, a hover preview card, and a movie detail modal with an ambient trailer.
 
-![webshow home page](docs/home.jpg)
-
 ## Run locally
 
 Needs webshow-core running on `http://localhost:3001`.
