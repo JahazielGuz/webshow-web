@@ -13,11 +13,12 @@ export type Movie = MovieSummary & {
   overview: string;
   backdropUrl: string | null;
   runtime: number | null;
+  trailerUrl: string | null;
   genres: Genre[];
   cast: Actor[];
 };
 
-// Reponse envelopes - match webshow-core's controllers exactly
+// Response envelopes - match webshow-core's controllers exactly
 export type GenresResponse = { items: Genre[] };
 
 export type BrowseRow = { genre: Genre; movies: MovieSummary[] };

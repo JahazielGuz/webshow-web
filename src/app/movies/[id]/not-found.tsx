@@ -1,8 +1,6 @@
-"use client";
-
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { useEffect } from "react";
+import { NavLink } from "@/components/NavLink";
 import { focusRing, neutral, transition } from "@/lib/tokens";
 
 const main: SxProps<Theme> = {
@@ -29,16 +27,14 @@ const message: SxProps<Theme> = {
   lineHeight: "1.25rem",
   color: neutral[400],
 };
-const button: SxProps<Theme> = {
-  // shape + spacing
-  minWidth: 0,
-  borderRadius: 1.5,
+const home: SxProps<Theme> = {
+  // pill
+  borderRadius: 9999,
   px: 2,
   py: 1,
-  // type
-  fontSize: "1rem",
-  lineHeight: 1.5,
-  fontWeight: 400,
+  fontSize: "0.875rem",
+  lineHeight: "1.25rem",
+  fontWeight: 500,
   // colour
   bgcolor: neutral[100],
   color: neutral[900],
@@ -48,25 +44,16 @@ const button: SxProps<Theme> = {
   ...focusRing,
 };
 
-export type ErrorProps = {
-  error: Error & { digest?: string };
-  reset: () => void;
-};
-
-export default function Error({ error, reset }: ErrorProps) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
+export default function NotFound() {
   return (
     <Box component="main" sx={main}>
       <Typography component="h1" sx={title}>
-        Something went wrong
+        Movie not found
       </Typography>
-      <Typography sx={message}>We couldn&apos;t load the catalogue. Please try again.</Typography>
-      <Button type="button" onClick={reset} sx={button}>
-        Retry
-      </Button>
+      <Typography sx={message}>That movie is not in the catalogue.</Typography>
+      <NavLink href="/" sx={home}>
+        Back to home
+      </NavLink>
     </Box>
   );
 }
