@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { formatRuntime } from "@/lib/format";
 
 const scrim = "absolute inset-0 bg-linear-to-t from-neutral-900 via-neutral-900/40 to-transparent";
-const treatment = "absolute inset-x-0 bottom-0 space-y-2 p-6";
-const heading = "text-2xl font-bold text-white md:text-4xl";
+const treatment = "absolute inset-x-0 bottom-0 space-y-1 p-4 sm:space-y-2 sm:p-6";
+const heading = "text-xl font-bold text-white sm:text-2xl md:text-4xl";
 const meta = "text-sm text-neutral-300";
 
 export type TitleTreatmentProps = {
