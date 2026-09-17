@@ -1,11 +1,15 @@
+import { Stack, Typography } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import { MovieDetail } from "@/components/MovieDetail";
 import { MovieModal } from "@/components/MovieModal";
 import { getMovie } from "@/lib/api";
+import { neutral } from "@/lib/tokens";
 import { randomStart } from "@/lib/youtube";
 
-const missing = "space-y-2 p-6 pr-14";
-const missingTitle = "text-2xl font-bold";
-const missingText = "text-neutral-400";
+// padded, with room on the right for the close button
+const missing: SxProps<Theme> = { p: 3, pr: 7 };
+const missingTitle: SxProps<Theme> = { fontSize: "1.5rem", lineHeight: "2rem", fontWeight: 700 };
+const missingText: SxProps<Theme> = { color: neutral[400] };
 
 export type MovieModalPageProps = {
   params: Promise<{ id: string }>;
@@ -19,12 +23,12 @@ export default async function MovieModalPage({ params }: MovieModalPageProps) {
   if (movie === null) {
     return (
       <MovieModal title="Movie not found">
-        <div className={missing}>
-          <h2 id="movie-title" className={missingTitle}>
+        <Stack spacing={1} sx={missing}>
+          <Typography component="h2" id="movie-title" sx={missingTitle}>
             Movie not found
-          </h2>
-          <p className={missingText}>That movie is no longer in the catalogue.</p>
-        </div>
+          </Typography>
+          <Typography sx={missingText}>That movie is no longer in the catalogue.</Typography>
+        </Stack>
       </MovieModal>
     );
   }

@@ -1,31 +1,52 @@
-const main = "min-h-dvh bg-neutral-950 py-6";
-const stack = "animate-pulse space-y-8";
-const section = "space-y-3";
-const heading = "mx-4 h-6 w-40 rounded bg-neutral-800 md:mx-6";
-const strip = "flex gap-4 overflow-hidden px-4 md:px-6";
-const tile = "w-32 shrink-0 sm:w-36 md:w-40";
-const poster = "aspect-[2/3] rounded-lg bg-neutral-800";
+import { Box, Skeleton, Stack } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
+import { neutral } from "@/lib/tokens";
+
+const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], py: 3 };
+const heading: SxProps<Theme> = {
+  // gutter
+  mx: { xs: 2, md: 3 },
+  // a heading-sized bar
+  height: 24,
+  width: 160,
+  borderRadius: 1,
+  bgcolor: neutral[800],
+};
+const strip: SxProps<Theme> = {
+  // a row of tiles, clipped at the edge
+  display: "flex",
+  gap: 2,
+  overflow: "hidden",
+  // side gutters
+  px: { xs: 2, md: 3 },
+};
+const poster: SxProps<Theme> = {
+  // the same 2:3 box as a real tile
+  flexShrink: 0,
+  width: { xs: 128, sm: 144, md: 160 },
+  aspectRatio: "2 / 3",
+  borderRadius: 2,
+  bgcolor: neutral[800],
+};
 
 const ROWS = 4;
 const TILES = 8;
 
 export default function Loading() {
   return (
-    <main className={main}>
-      <div className={stack}>
+    <Box component="main" sx={main}>
+      <Stack spacing={4}>
         {Array.from({ length: ROWS }).map((_, row) => (
-          <section key={row} className={section}>
-            <div className={heading} />
-            <div className={strip}>
+          <Stack key={row} component="section" spacing={1.5}>
+            <Skeleton variant="rectangular" sx={heading} />
+            <Box sx={strip}>
               {Array.from({ length: TILES }).map((_, tileIndex) => (
-                <div key={tileIndex} className={tile}>
-                  <div className={poster} />
-                </div>
+                <Skeleton key={tileIndex} variant="rectangular" sx={poster} />
               ))}
-            </div>
-          </section>
+            </Box>
+          </Stack>
         ))}
-      </div>
-    </main>
+      </Stack>
+    </Box>
   );
 }

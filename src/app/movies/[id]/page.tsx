@@ -1,14 +1,31 @@
+import { Box, Stack } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MovieDetail } from "@/components/MovieDetail";
+import { NavLink } from "@/components/NavLink";
 import { getMovie } from "@/lib/api";
+import { neutral, transition } from "@/lib/tokens";
 import { randomStart } from "@/lib/youtube";
 
-const main = "min-h-dvh bg-neutral-950 py-6";
-const column = "mx-auto max-w-3xl space-y-4 px-4 md:px-6";
-const back = "inline-block text-sm text-neutral-400 transition hover:text-white";
-const sheet = "overflow-hidden rounded-lg bg-neutral-900 text-neutral-100";
+const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], py: 3 };
+const column: SxProps<Theme> = { mx: "auto", maxWidth: 768, px: { xs: 2, md: 3 } };
+const back: SxProps<Theme> = {
+  // inline link, small and muted until hovered
+  display: "inline-block",
+  alignSelf: "flex-start",
+  fontSize: "0.875rem",
+  lineHeight: "1.25rem",
+  color: neutral[400],
+  transition,
+  "&:hover": { color: "#fff" },
+};
+const sheet: SxProps<Theme> = {
+  overflow: "hidden",
+  borderRadius: 2,
+  bgcolor: neutral[900],
+  color: neutral[100],
+};
 
 export type MoviePageProps = {
   params: Promise<{ id: string }>;
@@ -32,15 +49,15 @@ export default async function MoviePage({ params }: MoviePageProps) {
   const start = randomStart();
 
   return (
-    <main className={main}>
-      <div className={column}>
-        <Link href="/" className={back}>
+    <Box component="main" sx={main}>
+      <Stack spacing={2} sx={column}>
+        <NavLink href="/" sx={back}>
           &larr; Back to home
-        </Link>
-        <div className={sheet}>
+        </NavLink>
+        <Box sx={sheet}>
           <MovieDetail movie={movie} start={start} />
-        </div>
-      </div>
-    </main>
+        </Box>
+      </Stack>
+    </Box>
   );
 }

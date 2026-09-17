@@ -1,33 +1,74 @@
+"use client";
+
+import { keyframes } from "@emotion/react";
+import { Box, Button, Link, Stack, Typography } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
-import Link from "next/link";
-import { cn } from "@/lib/cn";
+import NextLink from "next/link";
+import type { CSSProperties } from "react";
+import { focusRing, neutral, transition } from "@/lib/tokens";
 import type { MovieSummary } from "@/lib/types";
 
 const SCALE = 1.5;
 const MAX_WIDTH = 260;
 const VIEWPORT_GUTTER = 8;
 
-const card = cn(
+const enter = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+`;
+
+const card: SxProps<Theme> = {
   // floats above the tile; width and offset come from the anchor rect
-  "fixed z-50",
-  // surface
-  "overflow-hidden rounded-lg bg-neutral-900 shadow-xl ring-1 ring-white/10",
+  position: "fixed",
+  zIndex: 50,
+  // surface: rounded, dark, a hairline ring and a soft shadow
+  overflow: "hidden",
+  borderRadius: 2,
+  bgcolor: neutral[900],
+  boxShadow: [
+    "0 0 0 1px rgba(255, 255, 255, 0.1)",
+    "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+    "0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+  ].join(", "),
   // entrance, skipped for reduced-motion users
-  "motion-safe:animate-hover-card",
-);
-const poster = "relative block aspect-[2/3] bg-neutral-800";
-const image = "object-cover";
-const body = "space-y-2 p-3";
-const title = "text-base font-semibold text-neutral-100";
-const year = "text-sm text-neutral-400";
-const moreInfo = cn(
-  // pill
-  "inline-block rounded-full px-3 py-1 text-sm font-medium",
+  "@media (prefers-reduced-motion: no-preference)": { animation: `${enter} 150ms ease-out` },
+};
+const poster: SxProps<Theme> = {
+  display: "block",
+  position: "relative",
+  aspectRatio: "2 / 3",
+  bgcolor: neutral[800],
+};
+const image: CSSProperties = { objectFit: "cover" };
+const body: SxProps<Theme> = { p: 1.5 };
+const title: SxProps<Theme> = {
+  fontSize: "1rem",
+  lineHeight: "1.5rem",
+  fontWeight: 600,
+  color: neutral[100],
+};
+const year: SxProps<Theme> = { fontSize: "0.875rem", lineHeight: "1.25rem", color: neutral[400] };
+const moreInfo: SxProps<Theme> = {
+  // pill, sized to its label
+  alignSelf: "flex-start",
+  minWidth: 0,
+  borderRadius: 9999,
+  px: 1.5,
+  py: 0.5,
+  fontSize: "0.875rem",
+  lineHeight: "1.25rem",
+  fontWeight: 500,
   // colour
-  "bg-neutral-100 text-neutral-900",
+  bgcolor: neutral[100],
+  color: neutral[900],
   // interaction
-  "transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white",
-);
+  transition,
+  "&:hover": { bgcolor: "#fff" },
+  ...focusRing,
+};
 
 export type HoverCardProps = {
   movie: MovieSummary;
@@ -46,17 +87,25 @@ function placeOver(anchor: DOMRect) {
 
 export function HoverCard({ movie, anchor }: HoverCardProps) {
   return (
-    <div className={card} style={placeOver(anchor)}>
-      <Link href={`/movies/${movie.id}`} className={poster} aria-label={movie.title}>
-        <Image src={movie.posterUrl} alt="" fill sizes="260px" className={image} />
+    <Box sx={card} style={placeOver(anchor)}>
+      <Link
+        component={NextLink}
+        href={`/movies/${movie.id}`}
+        aria-label={movie.title}
+        underline="none"
+        sx={poster}
+      >
+        <Image src={movie.posterUrl} alt="" fill sizes="260px" style={image} />
       </Link>
-      <div className={body}>
-        <h3 className={title}>{movie.title}</h3>
-        <p className={year}>{movie.releaseYear}</p>
-        <Link href={`/movies/${movie.id}`} className={moreInfo}>
+      <Stack spacing={1} sx={body}>
+        <Typography component="h3" sx={title}>
+          {movie.title}
+        </Typography>
+        <Typography sx={year}>{movie.releaseYear}</Typography>
+        <Button component={NextLink} href={`/movies/${movie.id}`} sx={moreInfo}>
           More info
-        </Link>
-      </div>
-    </div>
+        </Button>
+      </Stack>
+    </Box>
   );
 }

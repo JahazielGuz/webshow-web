@@ -1,11 +1,42 @@
+import { Box, Stack, Typography } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import { CastAvatar } from "@/components/CastAvatar";
+import { neutral } from "@/lib/tokens";
 import type { Actor } from "@/lib/types";
 
-const section = "space-y-3";
-const heading = "text-sm font-semibold text-neutral-400";
-const strip = "flex gap-4 overflow-x-auto pb-2";
-const item = "flex w-16 shrink-0 flex-col items-center gap-2";
-const name = "max-w-[4rem] text-center text-xs break-words text-neutral-300";
+const heading: SxProps<Theme> = {
+  fontSize: "0.875rem",
+  lineHeight: "1.25rem",
+  fontWeight: 600,
+  color: neutral[400],
+};
+const strip: SxProps<Theme> = {
+  // horizontally scrolling list
+  display: "flex",
+  gap: 2,
+  overflowX: "auto",
+  pb: 1,
+  // plain list
+  listStyle: "none",
+  m: 0,
+  p: 0,
+};
+const item: SxProps<Theme> = {
+  display: "flex",
+  width: 64,
+  flexShrink: 0,
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 1,
+};
+const name: SxProps<Theme> = {
+  maxWidth: 64,
+  textAlign: "center",
+  fontSize: "0.75rem",
+  lineHeight: "1rem",
+  wordBreak: "break-word",
+  color: neutral[300],
+};
 
 export type CastStripProps = {
   cast: Actor[];
@@ -17,16 +48,20 @@ export function CastStrip({ cast }: CastStripProps) {
   }
 
   return (
-    <section className={section}>
-      <h3 className={heading}>Cast</h3>
-      <ul className={strip}>
+    <Stack component="section" spacing={1.5}>
+      <Typography component="h3" sx={heading}>
+        Cast
+      </Typography>
+      <Box component="ul" sx={strip}>
         {cast.map((actor) => (
-          <li key={actor.id} className={item}>
+          <Box key={actor.id} component="li" sx={item}>
             <CastAvatar actor={actor} />
-            <span className={name}>{actor.name}</span>
-          </li>
+            <Typography component="span" sx={name}>
+              {actor.name}
+            </Typography>
+          </Box>
         ))}
-      </ul>
-    </section>
+      </Box>
+    </Stack>
   );
 }

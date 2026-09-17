@@ -1,10 +1,13 @@
+import { Box, Stack, Typography } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import { CastStrip } from "@/components/CastStrip";
 import { GenreChips } from "@/components/GenreChips";
 import { TrailerHeader } from "@/components/TrailerHeader";
+import { neutral } from "@/lib/tokens";
 import type { Movie } from "@/lib/types";
 
-const body = "space-y-4 px-6 py-5";
-const overview = "leading-relaxed text-neutral-200";
+const body: SxProps<Theme> = { px: 3, py: 2.5 };
+const overview: SxProps<Theme> = { lineHeight: 1.625, color: neutral[200] };
 
 export type MovieDetailProps = {
   movie: Movie;
@@ -13,7 +16,7 @@ export type MovieDetailProps = {
 
 export function MovieDetail({ movie, start }: MovieDetailProps) {
   return (
-    <article>
+    <Box component="article">
       <TrailerHeader
         title={movie.title}
         trailerUrl={movie.trailerUrl}
@@ -22,11 +25,11 @@ export function MovieDetail({ movie, start }: MovieDetailProps) {
         runtime={movie.runtime}
         start={start}
       />
-      <div className={body}>
-        {movie.overview !== "" && <p className={overview}>{movie.overview}</p>}
+      <Stack spacing={2} sx={body}>
+        {movie.overview !== "" && <Typography sx={overview}>{movie.overview}</Typography>}
         <GenreChips genres={movie.genres} />
         <CastStrip cast={movie.cast} />
-      </div>
-    </article>
+      </Stack>
+    </Box>
   );
 }

@@ -1,36 +1,67 @@
 "use client";
 
+import { Box, Button, IconButton, SvgIcon } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { SpeakerIcon } from "@/components/SpeakerIcon";
 import { TitleTreatment } from "@/components/TitleTreatment";
-import { cn } from "@/lib/cn";
+import { focusRing, neutral, transition } from "@/lib/tokens";
 import { youtubeEmbedUrl, youtubeVideoId } from "@/lib/youtube";
 
 const YOUTUBE_ORIGIN = "https://www.youtube-nocookie.com";
 
-const box = "relative aspect-video overflow-hidden bg-neutral-800";
-const player = "absolute inset-0 h-full w-full";
-const ambientPlayer = cn(player, "pointer-events-none");
-const shield = "absolute inset-0";
-const backdrop = "object-cover";
-const controls = "flex items-center gap-3 pt-2";
-const play = cn(
+// 16:9 header box
+const box: SxProps<Theme> = {
+  position: "relative",
+  aspectRatio: "16 / 9",
+  overflow: "hidden",
+  bgcolor: neutral[800],
+};
+const player: CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  height: "100%",
+  width: "100%",
+  border: 0,
+};
+// the ambient clip cannot be clicked
+const ambientPlayer: CSSProperties = { ...player, pointerEvents: "none" };
+const shield: SxProps<Theme> = { position: "absolute", inset: 0 };
+const backdrop: CSSProperties = { objectFit: "cover" };
+const controls: SxProps<Theme> = { display: "flex", alignItems: "center", gap: 1.5, pt: 1 };
+const play: SxProps<Theme> = {
   // pill
-  "flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold",
+  gap: 1,
+  minWidth: 0,
+  borderRadius: 9999,
+  px: 2.5,
+  py: 1,
+  fontSize: "0.875rem",
+  lineHeight: "1.25rem",
+  fontWeight: 600,
   // colour
-  "bg-white text-neutral-900",
+  bgcolor: "#fff",
+  color: neutral[900],
   // interaction
-  "transition hover:bg-neutral-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white",
-);
-const mute = cn(
+  transition,
+  "&:hover": { bgcolor: neutral[200] },
+  ...focusRing,
+};
+const playIcon: SxProps<Theme> = { fontSize: 20 };
+const mute: SxProps<Theme> = {
   // round icon button
-  "flex size-9 items-center justify-center rounded-full border border-neutral-400",
+  width: 36,
+  height: 36,
+  borderRadius: "50%",
+  border: `1px solid ${neutral[400]}`,
   // colour
-  "text-neutral-100",
+  color: neutral[100],
   // interaction
-  "transition hover:border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white",
-);
+  transition,
+  "&:hover": { borderColor: "#fff", bgcolor: "transparent" },
+  ...focusRing,
+};
 
 export type TrailerHeaderProps = {
   title: string;
@@ -63,7 +94,7 @@ export function TrailerHeader({
 
   if (videoId !== null && mode === "full") {
     return (
-      <div className={box}>
+      <Box sx={box}>
         <iframe
           src={youtubeEmbedUrl(videoId, {
             autoplay: 1,
@@ -75,14 +106,14 @@ export function TrailerHeader({
           title={`${title} trailer`}
           allow="autoplay; encrypted-media"
           allowFullScreen
-          className={player}
+          style={player}
         />
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div className={box}>
+    <Box sx={box}>
       {videoId !== null ? (
         <>
           <iframe
@@ -99,9 +130,9 @@ export function TrailerHeader({
             })}
             title={`${title} trailer`}
             allow="autoplay; encrypted-media"
-            className={ambientPlayer}
+            style={ambientPlayer}
           />
-          <div className={shield} />
+          <Box sx={shield} />
         </>
       ) : backdropUrl !== null ? (
         <Image
@@ -110,29 +141,29 @@ export function TrailerHeader({
           fill
           priority
           sizes="(min-width: 896px) 896px, 100vw"
-          className={backdrop}
+          style={backdrop}
         />
       ) : null}
       <TitleTreatment title={title} releaseYear={releaseYear} runtime={runtime}>
         {videoId !== null && (
-          <div className={controls}>
-            <button type="button" className={play} onClick={() => setMode("full")}>
-              <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden="true">
+          <Box sx={controls}>
+            <Button type="button" sx={play} onClick={() => setMode("full")}>
+              <SvgIcon viewBox="0 0 24 24" sx={playIcon} aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
-              </svg>
+              </SvgIcon>
               Play
-            </button>
-            <button
+            </Button>
+            <IconButton
               type="button"
-              className={mute}
+              sx={mute}
               aria-label={muted ? "Unmute" : "Mute"}
               onClick={toggleMute}
             >
               <SpeakerIcon muted={muted} />
-            </button>
-          </div>
+            </IconButton>
+          </Box>
         )}
       </TitleTreatment>
-    </div>
+    </Box>
   );
 }

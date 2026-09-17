@@ -1,37 +1,46 @@
 "use client";
 
+import { Box, Link } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
+import NextLink from "next/link";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FocusEvent,
+  type KeyboardEvent,
+} from "react";
 import { HoverCard } from "@/components/HoverCard";
-import { cn } from "@/lib/cn";
+import { focusRing, neutral, transition } from "@/lib/tokens";
 import type { MovieSummary } from "@/lib/types";
 
 const OPEN_DELAY_MS = 300;
 
-const tile = "shrink-0";
-const link = cn(
+const tile: SxProps<Theme> = { flexShrink: 0 };
+const link: SxProps<Theme> = {
   // box + responsive width
-  "group block w-32 sm:w-36 md:w-40",
+  display: "block",
+  width: { xs: 128, sm: 144, md: 160 },
   // shape
-  "rounded-lg",
+  borderRadius: 2,
+  // hover zooms the poster
+  "&:hover img": { transform: "scale(1.05)" },
   // keyboard focus
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-white",
-);
-const frame = cn(
+  ...focusRing,
+};
+const frame: SxProps<Theme> = {
   // reserve the 2:3 box before the poster loads
-  "relative aspect-[2/3]",
+  position: "relative",
+  aspectRatio: "2 / 3",
   // shape
-  "overflow-hidden rounded-lg",
+  overflow: "hidden",
+  borderRadius: 2,
   // placeholder colour while the poster streams in
-  "bg-neutral-800",
-);
-const image = cn(
-  // fill the frame
-  "object-cover",
-  // hover
-  "transition group-hover:scale-105",
-);
+  bgcolor: neutral[800],
+};
+const image: CSSProperties = { objectFit: "cover", transition };
 
 export type PosterTileProps = {
   movie: MovieSummary;
@@ -105,27 +114,34 @@ export function PosterTile({ movie, priority = false }: PosterTileProps) {
   }, [open]);
 
   return (
-    <div
-      className={tile}
+    <Box
+      sx={tile}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={closeCard}
       onFocus={handleFocus}
       onBlur={handleBlur}
       onKeyDown={handleKeyDown}
     >
-      <Link ref={linkRef} href={`/movies/${movie.id}`} className={link} aria-expanded={open}>
-        <div className={frame}>
+      <Link
+        ref={linkRef}
+        component={NextLink}
+        href={`/movies/${movie.id}`}
+        underline="none"
+        sx={link}
+        aria-expanded={open}
+      >
+        <Box sx={frame}>
           <Image
             src={movie.posterUrl}
             alt={movie.title}
             fill
             sizes="(min-width: 768px) 160px, (min-width: 640px) 144px, 128px"
             priority={priority}
-            className={image}
+            style={image}
           />
-        </div>
+        </Box>
       </Link>
       {anchor !== null && <HoverCard movie={movie} anchor={anchor} />}
-    </div>
+    </Box>
   );
 }

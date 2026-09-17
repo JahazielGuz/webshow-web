@@ -1,10 +1,20 @@
+import { Avatar } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
+import type { CSSProperties } from "react";
+import { neutral } from "@/lib/tokens";
 import type { Actor } from "@/lib/types";
 
-const headshot = "relative size-16 overflow-hidden rounded-full bg-neutral-700";
-const image = "object-cover";
-const initials =
-  "flex size-16 items-center justify-center rounded-full bg-neutral-700 text-lg font-medium text-neutral-200";
+// 64px circle; the initials fallback is set in the same colours
+const avatar: SxProps<Theme> = {
+  width: 64,
+  height: 64,
+  bgcolor: neutral[700],
+  color: neutral[200],
+  fontSize: "1.125rem",
+  fontWeight: 500,
+};
+const headshot: CSSProperties = { objectFit: "cover" };
 
 export type CastAvatarProps = {
   actor: Actor;
@@ -19,15 +29,15 @@ function initialsOf(name: string) {
 export function CastAvatar({ actor }: CastAvatarProps) {
   if (actor.profileUrl === null) {
     return (
-      <div className={initials} aria-hidden="true">
+      <Avatar sx={avatar} aria-hidden="true">
         {initialsOf(actor.name)}
-      </div>
+      </Avatar>
     );
   }
 
   return (
-    <div className={headshot}>
-      <Image src={actor.profileUrl} alt="" fill sizes="64px" className={image} />
-    </div>
+    <Avatar sx={avatar}>
+      <Image src={actor.profileUrl} alt="" fill sizes="64px" style={headshot} />
+    </Avatar>
   );
 }
