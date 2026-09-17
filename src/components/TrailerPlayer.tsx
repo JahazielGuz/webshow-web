@@ -5,7 +5,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { PlayerControls } from "@/components/PlayerControls";
-import { PlayerIcon, type PlayerIconName } from "@/components/PlayerIcon";
+import { PlayerIcon } from "@/components/PlayerIcon";
 import { PlayerNotice } from "@/components/PlayerNotice";
 import type { PlayerExit } from "@/lib/playerExit";
 import { focusRing, neutral } from "@/lib/tokens";
@@ -18,9 +18,6 @@ const SETTLE_MS = 4000;
 // a few seconds after every seek, play and pause — all of which are our own input — so our
 // chrome (and the shutters that hide theirs) is up for at least as long as theirs.
 const IDLE_MS = 4000;
-// YouTube keeps its own play/pause button in the centre of the picture for about four seconds
-// after every start, resume and seek; our bezel sits over it for a little longer than that
-const BEZEL_MS = 4500;
 
 const shell: SxProps<Theme> = {
   // the whole viewport, black, above everything else on the page
@@ -77,24 +74,6 @@ const shutter = {
 } as const;
 const shutterTop: SxProps<Theme> = { ...shutter, top: 0, height: "max(12%, 64px)" };
 const shutterBottom: SxProps<Theme> = { ...shutter, bottom: 0, height: "max(16%, 100px)" };
-const bezel: SxProps<Theme> = {
-  // centred feedback for play / pause / skip
-  ...dim,
-  bgcolor: "transparent",
-  pointerEvents: "none",
-  "& > div": {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 120,
-    height: 120,
-    borderRadius: "50%",
-    // opaque where YouTube's button is, translucent around it
-    background: "radial-gradient(circle, #000 22px, rgba(0, 0, 0, 0.85) 23px)",
-    color: "#fff",
-  },
-};
-const bezelIcon: SxProps<Theme> = { fontSize: 64 };
 const top: SxProps<Theme> = {
   // back button and title, fading with the rest of the chrome
   position: "absolute",
@@ -131,13 +110,10 @@ export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerP
   const [settled, setSettled] = useState(false);
   const [active, setActive] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
-  const [flash, setFlash] = useState<{ icon: PlayerIconName; at: number } | null>(null);
-  const player = useYouTubePlayer(hostRef, {
-    videoId,
-    autoplay: true,
-    // The black stage drops at this moment, so the bezel goes up over YouTube's start button
-    onStart: () => setFlash({ icon: "play", at: Date.now() }),
-  });
+  const player = useYouTubePlayer(hostRef, { videoId, autoplay: true });
+  // The black stage drops at the first frame; YouTube's own play/pause button, which its embed
+  // keeps in the centre of the picture for a few seconds after every start, resume and seek,
+  // cannot be removed and is left alone rather than covered
   const revealed = player.started;
 
   const playing = player.status === "playing";
@@ -152,16 +128,6 @@ export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerP
     const timer = window.setTimeout(() => setSettled(true), SETTLE_MS);
     return () => window.clearTimeout(timer);
   }, [revealed]);
-
-  // The bezel disappears on its own
-  useEffect(() => {
-    if (flash === null) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setFlash(null), BEZEL_MS);
-    return () => window.clearTimeout(timer);
-  }, [flash]);
 
   // Any input shows the chrome; silence hides it again while playing
   useEffect(() => {
@@ -206,16 +172,13 @@ export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerP
   function toggle() {
     if (playing) {
       player.pause();
-      setFlash({ icon: "pause", at: Date.now() });
     } else {
       player.play();
-      setFlash({ icon: "play", at: Date.now() });
     }
   }
 
   function skip(delta: number) {
     player.seekBy(delta);
-    setFlash({ icon: delta < 0 ? "replay" : "forward", at: Date.now() });
   }
 
   function toggleFullscreen() {
@@ -275,13 +238,6 @@ export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerP
         )}
         <Box sx={shutterTop} style={{ opacity: showChrome ? 1 : 0 }} />
         <Box sx={shutterBottom} style={{ opacity: showChrome ? 1 : 0 }} />
-        {flash !== null && (
-          <Box sx={bezel} key={flash.at}>
-            <div>
-              <PlayerIcon name={flash.icon} sx={bezelIcon} />
-            </div>
-          </Box>
-        )}
         {(player.status === "paused" || player.status === "ended") && (
           <Box sx={dim}>
             <IconButton

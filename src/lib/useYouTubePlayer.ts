@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { hideCaptions, loadYouTubeApi } from "@/lib/youtubeApi";
 
 export type PlayerStatus = "loading" | "playing" | "paused" | "buffering" | "ended" | "error";
@@ -6,8 +6,6 @@ export type PlayerStatus = "loading" | "playing" | "paused" | "buffering" | "end
 export type YouTubePlayerOptions = {
   videoId: string;
   autoplay: boolean;
-  // Called once, when playback first begins
-  onStart?: () => void;
 };
 
 const POLL_MS = 250;
@@ -15,13 +13,12 @@ const POLL_MS = 250;
 // Drives one YouTube player mounted inside `hostRef` and mirrors its real state into React
 export function useYouTubePlayer(
   hostRef: RefObject<HTMLDivElement | null>,
-  { videoId, autoplay, onStart }: YouTubePlayerOptions,
+  { videoId, autoplay }: YouTubePlayerOptions,
 ) {
   const playerRef = useRef<YT.Player | null>(null);
   const [status, setStatus] = useState<PlayerStatus>("loading");
+  // Playback has begun at least once
   const [started, setStarted] = useState(false);
-  // Always the latest callback, without re-creating the player when it changes
-  const handleStart = useEffectEvent(() => onStart?.());
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -34,7 +31,6 @@ export function useYouTubePlayer(
     }
 
     let cancelled = false;
-    let started = false;
     // The API replaces this element with its iframe, so give it one of its own to consume
     const mount = document.createElement("div");
     host.append(mount);
@@ -81,12 +77,7 @@ export function useYouTubePlayer(
             if (event.data === api.PlayerState.PLAYING) {
               hideCaptions(event.target);
               setDuration(event.target.getDuration());
-
-              if (!started) {
-                started = true;
-                setStarted(true);
-                handleStart();
-              }
+              setStarted(true);
             }
           },
           // A trailer that cannot be embedded or no longer exists
