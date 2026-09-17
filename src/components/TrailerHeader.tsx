@@ -3,13 +3,12 @@
 import { Box, Button, IconButton, SvgIcon } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
-import { useRef, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
+import { AmbientTrailer } from "@/components/AmbientTrailer";
 import { SpeakerIcon } from "@/components/SpeakerIcon";
 import { TitleTreatment } from "@/components/TitleTreatment";
 import { focusRing, neutral, transition } from "@/lib/tokens";
 import { youtubeEmbedUrl, youtubeVideoId } from "@/lib/youtube";
-
-const YOUTUBE_ORIGIN = "https://www.youtube-nocookie.com";
 
 // 16:9 header box
 const box: SxProps<Theme> = {
@@ -25,9 +24,6 @@ const player: CSSProperties = {
   width: "100%",
   border: 0,
 };
-// the ambient clip cannot be clicked
-const ambientPlayer: CSSProperties = { ...player, pointerEvents: "none" };
-const shield: SxProps<Theme> = { position: "absolute", inset: 0 };
 const backdrop: CSSProperties = { objectFit: "cover" };
 const controls: SxProps<Theme> = { display: "flex", alignItems: "center", gap: 1.5, pt: 1 };
 const play: SxProps<Theme> = {
@@ -83,14 +79,6 @@ export function TrailerHeader({
   const videoId = trailerUrl === null ? null : youtubeVideoId(trailerUrl);
   const [mode, setMode] = useState<"ambient" | "full">("ambient");
   const [muted, setMuted] = useState(true);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  // Talk to the running player (enablejsapi=1) instead of reloading the iframe
-  function toggleMute() {
-    const command = JSON.stringify({ event: "command", func: muted ? "unMute" : "mute", args: [] });
-    iframeRef.current?.contentWindow?.postMessage(command, YOUTUBE_ORIGIN);
-    setMuted(!muted);
-  }
 
   if (videoId !== null && mode === "full") {
     return (
@@ -115,25 +103,13 @@ export function TrailerHeader({
   return (
     <Box sx={box}>
       {videoId !== null ? (
-        <>
-          <iframe
-            ref={iframeRef}
-            src={youtubeEmbedUrl(videoId, {
-              autoplay: 1,
-              mute: 1,
-              controls: 0,
-              disablekb: 1,
-              rel: 0,
-              playsinline: 1,
-              enablejsapi: 1,
-              start,
-            })}
-            title={`${title} trailer`}
-            allow="autoplay; encrypted-media"
-            style={ambientPlayer}
-          />
-          <Box sx={shield} />
-        </>
+        <AmbientTrailer
+          videoId={videoId}
+          start={start}
+          muted={muted}
+          coverUrl={backdropUrl}
+          title={title}
+        />
       ) : backdropUrl !== null ? (
         <Image
           src={backdropUrl}
@@ -157,7 +133,7 @@ export function TrailerHeader({
               type="button"
               sx={mute}
               aria-label={muted ? "Unmute" : "Mute"}
-              onClick={toggleMute}
+              onClick={() => setMuted(!muted)}
             >
               <SpeakerIcon muted={muted} />
             </IconButton>
