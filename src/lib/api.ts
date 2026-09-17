@@ -46,7 +46,9 @@ export function getMovies(query: MoviesQuery = {}) {
 export async function getMovie(id: string): Promise<Movie | null> {
   const res = await fetch(`${baseUrl}/movies/${id}`, { cache: "no-store" });
 
-  if (res.status === 404) {
+  // The API answers 400 for a malformed id and 404 for an unknown one; to a page both mean
+  // there is no such movie
+  if (res.status === 400 || res.status === 404) {
     return null;
   }
 
