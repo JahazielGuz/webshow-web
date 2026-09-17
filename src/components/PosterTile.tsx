@@ -125,7 +125,7 @@ export function PosterTile({ movie, priority = false }: PosterTileProps) {
       <Link
         ref={linkRef}
         component={NextLink}
-        href={`/movies/${movie.id}`}
+        href={`/watch/${movie.id}`}
         underline="none"
         sx={link}
         aria-expanded={open}
