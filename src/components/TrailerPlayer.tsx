@@ -2,24 +2,25 @@
 
 import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlayerControls } from "@/components/PlayerControls";
 import { PlayerIcon, type PlayerIconName } from "@/components/PlayerIcon";
+import { PlayerNotice } from "@/components/PlayerNotice";
 import type { PlayerExit } from "@/lib/playerExit";
 import { focusRing, neutral } from "@/lib/tokens";
 import { useYouTubePlayer } from "@/lib/useYouTubePlayer";
 
-// YouTube paints its title bar, a play bezel and captions for the first seconds of playback;
-// the cover stays up that long
-const REVEAL_DELAY_MS = 3500;
+// YouTube's title bar is drawn for a few seconds after playback starts; our chrome, with the
+// shutters that hide it, stays up at least that long
+const SETTLE_MS = 4000;
 // Controls fade after this long without input while playing. YouTube also shows its chrome for
 // a few seconds after every seek, play and pause — all of which are our own input — so our
 // chrome (and the shutters that hide theirs) is up for at least as long as theirs.
 const IDLE_MS = 4000;
-// The action bezel is shown this long; it sits where YouTube draws its own, and covers it
-const BEZEL_MS = 700;
+// YouTube keeps its own play/pause button in the centre of the picture for about four seconds
+// after every start, resume and seek; our bezel sits over it for a little longer than that
+const BEZEL_MS = 4500;
 
 const shell: SxProps<Theme> = {
   // the whole viewport, black, above everything else on the page
@@ -45,8 +46,7 @@ const host: SxProps<Theme> = {
   pointerEvents: "none",
   "& iframe": { width: "100%", height: "100%", border: 0 },
 };
-const cover: SxProps<Theme> = { ...layer, bgcolor: neutral[900], transition: "opacity 700ms ease" };
-const coverImage: CSSProperties = { objectFit: "cover" };
+const cover: SxProps<Theme> = { ...layer, bgcolor: "#000" };
 const dim: SxProps<Theme> = {
   // our own paused / ended screen
   ...layer,
@@ -89,7 +89,8 @@ const bezel: SxProps<Theme> = {
     width: 120,
     height: 120,
     borderRadius: "50%",
-    bgcolor: "rgba(0, 0, 0, 0.85)",
+    // opaque where YouTube's button is, translucent around it
+    background: "radial-gradient(circle, #000 22px, rgba(0, 0, 0, 0.85) 23px)",
     color: "#fff",
   },
 };
@@ -127,24 +128,30 @@ export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerP
   const router = useRouter();
   const shellRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
-  const player = useYouTubePlayer(hostRef, { videoId, autoplay: true });
-  const [revealed, setRevealed] = useState(false);
+  const [settled, setSettled] = useState(false);
   const [active, setActive] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
   const [flash, setFlash] = useState<{ icon: PlayerIconName; at: number } | null>(null);
+  const player = useYouTubePlayer(hostRef, {
+    videoId,
+    autoplay: true,
+    // The black stage drops at this moment, so the bezel goes up over YouTube's start button
+    onStart: () => setFlash({ icon: "play", at: Date.now() }),
+  });
+  const revealed = player.started;
 
   const playing = player.status === "playing";
-  const showChrome = active || !playing;
+  const showChrome = active || !playing || !settled;
 
-  // First playback: wait out YouTube's start chrome under the cover
+  // YouTube's title bar stays a few seconds into playback; so do the shutters
   useEffect(() => {
-    if (revealed || !playing) {
+    if (!revealed) {
       return;
     }
 
-    const timer = window.setTimeout(() => setRevealed(true), REVEAL_DELAY_MS);
+    const timer = window.setTimeout(() => setSettled(true), SETTLE_MS);
     return () => window.clearTimeout(timer);
-  }, [revealed, playing]);
+  }, [revealed]);
 
   // The bezel disappears on its own
   useEffect(() => {
@@ -260,12 +267,8 @@ export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerP
     >
       <Box sx={stage}>
         <Box ref={hostRef} sx={host} />
-        <Box sx={cover} style={{ opacity: revealed ? 0 : 1 }}>
-          {coverUrl !== null && (
-            <Image src={coverUrl} alt="" fill priority sizes="100vw" style={coverImage} />
-          )}
-        </Box>
-        {player.status === "buffering" && revealed && (
+        {!revealed && <Box sx={cover} />}
+        {(player.status === "loading" || player.status === "buffering") && (
           <Box sx={spinner}>
             <CircularProgress sx={{ color: "#fff" }} />
           </Box>
@@ -291,6 +294,14 @@ export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerP
           </Box>
         )}
       </Box>
+      {player.status === "error" && (
+        <PlayerNotice
+          heading={title}
+          text="This trailer can't be played right now."
+          backdropUrl={coverUrl}
+          exit={exit}
+        />
+      )}
       <Box sx={top} style={{ opacity: showChrome ? 1 : 0 }}>
         <IconButton aria-label="Back to browse" onClick={leave} sx={backButton}>
           <PlayerIcon name="back" sx={backIcon} />
