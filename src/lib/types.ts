@@ -31,3 +31,22 @@ export type MoviesResponse = {
   total: number;
   hasMore: boolean;
 };
+
+export type User = {
+  id: string;
+  email: string;
+  displayName: string;
+  createdAt: string;
+};
+
+export type SessionTokens = {
+  accessToken: string;
+  refreshToken: string;
+  // Seconds the access token stays valid, which is also how long its cookie lives
+  expiresIn: number;
+};
+
+export type AuthResponse = SessionTokens & { user: User };
+
+// What a sign-in or sign-up form shows after a failed attempt
+export type AuthFormState = { message: string | null };
