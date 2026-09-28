@@ -9,6 +9,7 @@ import { PlayerIcon } from "@/components/PlayerIcon";
 import { PlayerNotice } from "@/components/PlayerNotice";
 import type { OverlayExit } from "@/lib/overlayExit";
 import { focusRing, neutral } from "@/lib/tokens";
+import { reportProgress } from "@/app/watch/actions";
 import { useYouTubePlayer } from "@/lib/useYouTubePlayer";
 
 // YouTube's title bar is drawn for a few seconds after playback starts; our chrome, with the
@@ -96,27 +97,71 @@ const backButton: SxProps<Theme> = {
 const backIcon: SxProps<Theme> = { fontSize: 36 };
 const heading: SxProps<Theme> = { fontSize: { xs: "1rem", md: "1.25rem" }, fontWeight: 600 };
 
+// A trailer runs about two minutes, so ten seconds is a dozen writes per viewing rather than
+// one per tick. The report on close is what saves the last stretch before the tab goes away.
+const REPORT_EVERY_MS = 10_000;
+
 export type TrailerPlayerProps = {
+  movieId: string;
+  resumeSeconds: number;
   videoId: string;
   title: string;
   coverUrl: string | null;
   exit: OverlayExit;
 };
 
-export function TrailerPlayer({ videoId, title, coverUrl, exit }: TrailerPlayerProps) {
+export function TrailerPlayer({
+  movieId,
+  videoId,
+  title,
+  coverUrl,
+  exit,
+  resumeSeconds,
+}: TrailerPlayerProps) {
   const router = useRouter();
   const shellRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const [settled, setSettled] = useState(false);
   const [active, setActive] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
-  const player = useYouTubePlayer(hostRef, { videoId, autoplay: true });
+  const player = useYouTubePlayer(hostRef, {
+    videoId,
+    autoplay: true,
+    startSeconds: resumeSeconds,
+  });
   // The black stage drops at the first frame; YouTube's own play/pause button, which its embed
   // keeps in the centre of the picture for a few seconds after every start, resume and seek,
   // cannot be removed and is left alone rather than covered
   const revealed = player.started;
 
   const playing = player.status === "playing";
+
+  // The latest position, read by the timer and by the unmount without re-running either of them.
+  // Written in an effect rather than during render, because a ref is not render-time state.
+  const latest = useRef({ position: 0, duration: 0 });
+
+  useEffect(() => {
+    latest.current = { position: player.currentTime, duration: player.duration };
+  });
+
+  // Report on a timer while playing, and once more on the way out. Nothing awaits the answer:
+  // losing one report costs a few seconds of memory, and a failure must never interrupt a film.
+  useEffect(() => {
+    function send() {
+      const { position, duration } = latest.current;
+
+      if (duration > 0) {
+        void reportProgress(movieId, position, duration);
+      }
+    }
+
+    const timer = window.setInterval(send, REPORT_EVERY_MS);
+
+    return () => {
+      window.clearInterval(timer);
+      send();
+    };
+  }, [movieId]);
   const showChrome = active || !playing || !settled;
 
   // YouTube's title bar stays a few seconds into playback; so do the shutters

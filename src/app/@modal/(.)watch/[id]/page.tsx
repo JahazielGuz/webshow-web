@@ -1,5 +1,6 @@
 import { FullscreenPlayer } from "@/components/FullscreenPlayer";
 import { getMovie } from "@/lib/api";
+import { resumeSeconds } from "@/lib/watchProgress";
 
 export type WatchOverlayPageProps = {
   params: Promise<{ id: string }>;
@@ -10,6 +11,7 @@ export type WatchOverlayPageProps = {
 export default async function WatchOverlayPage({ params }: WatchOverlayPageProps) {
   const { id } = await params;
   const movie = await getMovie(id);
+  const startAt = await resumeSeconds(id);
 
-  return <FullscreenPlayer movie={movie} exit="back" />;
+  return <FullscreenPlayer movie={movie} exit="back" resumeSeconds={startAt} />;
 }

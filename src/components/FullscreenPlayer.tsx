@@ -7,10 +7,11 @@ import { youtubeVideoId } from "@/lib/youtube";
 export type FullscreenPlayerProps = {
   movie: Movie | null;
   exit: OverlayExit;
+  resumeSeconds: number;
 };
 
 // Hands the viewport to the trailer player, or explains why it cannot
-export function FullscreenPlayer({ movie, exit }: FullscreenPlayerProps) {
+export function FullscreenPlayer({ movie, exit, resumeSeconds }: FullscreenPlayerProps) {
   if (movie === null) {
     return (
       <PlayerNotice
@@ -36,6 +37,13 @@ export function FullscreenPlayer({ movie, exit }: FullscreenPlayerProps) {
   }
 
   return (
-    <TrailerPlayer videoId={videoId} title={movie.title} coverUrl={movie.backdropUrl} exit={exit} />
+    <TrailerPlayer
+      movieId={movie.id}
+      videoId={videoId}
+      title={movie.title}
+      coverUrl={movie.backdropUrl}
+      exit={exit}
+      resumeSeconds={resumeSeconds}
+    />
   );
 }
