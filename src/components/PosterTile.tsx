@@ -41,13 +41,26 @@ const frame: SxProps<Theme> = {
   bgcolor: neutral[800],
 };
 const image: CSSProperties = { objectFit: "cover", transition };
+const track: SxProps<Theme> = {
+  // sits on the poster's bottom edge, inside the rounded frame
+  position: "absolute",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  height: 4,
+  bgcolor: "rgba(255, 255, 255, 0.3)",
+};
+const filled: SxProps<Theme> = { height: "100%", bgcolor: "#fff" };
 
 export type PosterTileProps = {
   movie: MovieSummary;
   priority?: boolean;
+  // 0 to 1 when the viewer has started this film. Absent everywhere else, which is what keeps
+  // the bar out of the genre rows without a second component.
+  progress?: number;
 };
 
-export function PosterTile({ movie, priority = false }: PosterTileProps) {
+export function PosterTile({ movie, priority = false, progress }: PosterTileProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
   const timer = useRef(0);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
@@ -139,6 +152,11 @@ export function PosterTile({ movie, priority = false }: PosterTileProps) {
             priority={priority}
             style={image}
           />
+          {progress !== undefined && (
+            <Box sx={track} aria-hidden="true">
+              <Box sx={filled} style={{ width: `${Math.min(progress, 1) * 100}%` }} />
+            </Box>
+          )}
         </Box>
       </Link>
       {anchor !== null && <HoverCard movie={movie} anchor={anchor} />}

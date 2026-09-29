@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { ACCESS_COOKIE } from "@/lib/sessionCookies";
 import { putProgress } from "@/lib/watchApi";
@@ -20,4 +21,17 @@ export async function reportProgress(
   }
 
   await putProgress(accessToken, movieId, Math.floor(positionSeconds), Math.floor(durationSeconds));
+}
+
+// The same report, plus an invalidation, for the moment the viewer leaves the player. Keep
+// watching is rendered on the server from this data, so without purging the cached home page
+// the row would still show the position they had when they arrived.
+export async function finishWatching(
+  movieId: string,
+  positionSeconds: number,
+  durationSeconds: number,
+) {
+  await reportProgress(movieId, positionSeconds, durationSeconds);
+
+  revalidatePath("/");
 }
