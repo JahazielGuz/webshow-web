@@ -6,6 +6,9 @@ export type PlayerStatus = "loading" | "playing" | "paused" | "buffering" | "end
 export type YouTubePlayerOptions = {
   videoId: string;
   autoplay: boolean;
+  // Where to begin. YouTube takes this as a player parameter, so the viewer never sees the
+  // opening frames flash before a seek: the video simply starts where they left off.
+  startSeconds?: number;
 };
 
 const POLL_MS = 250;
@@ -13,7 +16,7 @@ const POLL_MS = 250;
 // Drives one YouTube player mounted inside `hostRef` and mirrors its real state into React
 export function useYouTubePlayer(
   hostRef: RefObject<HTMLDivElement | null>,
-  { videoId, autoplay }: YouTubePlayerOptions,
+  { videoId, autoplay, startSeconds = 0 }: YouTubePlayerOptions,
 ) {
   const playerRef = useRef<YT.Player | null>(null);
   const [status, setStatus] = useState<PlayerStatus>("loading");
@@ -53,6 +56,7 @@ export function useYouTubePlayer(
         host: "https://www.youtube-nocookie.com",
         playerVars: {
           autoplay: autoplay ? 1 : 0,
+          start: Math.floor(startSeconds),
           controls: 0,
           disablekb: 1,
           fs: 0,
@@ -92,7 +96,7 @@ export function useYouTubePlayer(
       playerRef.current = null;
       mount.remove();
     };
-  }, [hostRef, videoId, autoplay]);
+  }, [hostRef, videoId, autoplay, startSeconds]);
 
   // While playing, keep the clock in step with the player
   useEffect(() => {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FullscreenPlayer } from "@/components/FullscreenPlayer";
 import { getMovie } from "@/lib/api";
+import { resumeSeconds } from "@/lib/watchProgress";
 
 export type WatchPageProps = {
   params: Promise<{ id: string }>;
@@ -18,10 +19,11 @@ export async function generateMetadata({ params }: WatchPageProps): Promise<Meta
 export default async function WatchPage({ params }: WatchPageProps) {
   const { id } = await params;
   const movie = await getMovie(id);
+  const startAt = await resumeSeconds(id);
 
   if (movie === null) {
     notFound();
   }
 
-  return <FullscreenPlayer movie={movie} exit="home" />;
+  return <FullscreenPlayer movie={movie} exit="home" resumeSeconds={startAt} />;
 }

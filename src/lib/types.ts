@@ -50,3 +50,17 @@ export type AuthResponse = SessionTokens & { user: User };
 
 // What a sign-in or sign-up form shows after a failed attempt
 export type AuthFormState = { message: string | null };
+
+export type ResumePoint = {
+  positionSeconds: number;
+  completed: boolean;
+};
+
+export type KeepWatchingItem = {
+  movie: MovieSummary;
+  positionSeconds: number;
+  durationSeconds: number;
+  // 0 to 1, computed by the API so every client draws the same bar
+  progress: number;
+  updatedAt: string;
+};
