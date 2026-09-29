@@ -1,6 +1,7 @@
 import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { CastStrip } from "@/components/CastStrip";
+import { SimilarTitlesRow } from "@/components/SimilarTitlesRow";
 import { GenreChips } from "@/components/GenreChips";
 import { TrailerHeader } from "@/components/TrailerHeader";
 import { neutral } from "@/lib/tokens";
@@ -30,6 +31,7 @@ export function MovieDetail({ movie, start }: MovieDetailProps) {
         {movie.overview !== "" && <Typography sx={overview}>{movie.overview}</Typography>}
         <GenreChips genres={movie.genres} />
         <CastStrip cast={movie.cast} />
+        <SimilarTitlesRow movieId={movie.id} />
       </Stack>
     </Box>
   );
