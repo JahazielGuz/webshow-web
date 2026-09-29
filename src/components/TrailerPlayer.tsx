@@ -9,7 +9,7 @@ import { PlayerIcon } from "@/components/PlayerIcon";
 import { PlayerNotice } from "@/components/PlayerNotice";
 import type { OverlayExit } from "@/lib/overlayExit";
 import { focusRing, neutral } from "@/lib/tokens";
-import { reportProgress } from "@/app/watch/actions";
+import { finishWatching, reportProgress } from "@/app/watch/actions";
 import { useYouTubePlayer } from "@/lib/useYouTubePlayer";
 
 // YouTube's title bar is drawn for a few seconds after playback starts; our chrome, with the
@@ -234,13 +234,25 @@ export function TrailerPlayer({
     }
   }
 
-  // Back to wherever the player was opened from, or home after a direct load
-  function leave() {
+  // Back to wherever the player was opened from, or home after a direct load. The final report
+  // is awaited before navigating, so the Keep watching row behind this player is rebuilt from
+  // the position the viewer actually stopped at rather than the one they arrived with.
+  async function leave() {
+    const { position, duration } = latest.current;
+
+    if (duration > 0) {
+      await finishWatching(movieId, position, duration);
+    }
+
     if (exit === "back") {
       router.back();
     } else {
       router.push("/");
     }
+
+    // The page underneath was never unmounted when the player is an overlay, so invalidating
+    // the cache is not enough on its own: this is what makes it re-render.
+    router.refresh();
   }
 
   // Netflix's keys: space, arrows, m, f, escape
@@ -258,7 +270,7 @@ export function TrailerPlayer({
       } else if (event.key === "f") {
         toggleFullscreen();
       } else if (event.key === "Escape" && document.fullscreenElement === null) {
-        leave();
+        void leave();
       }
     }
 
@@ -304,7 +316,7 @@ export function TrailerPlayer({
         />
       )}
       <Box sx={top} style={{ opacity: showChrome ? 1 : 0 }}>
-        <IconButton aria-label="Back to browse" onClick={leave} sx={backButton}>
+        <IconButton aria-label="Back to browse" onClick={() => void leave()} sx={backButton}>
           <PlayerIcon name="back" sx={backIcon} />
         </IconButton>
         <Typography component="h1" sx={heading}>
