@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { ACCESS_COOKIE } from "@/lib/sessionCookies";
-import { getKeepWatching, getResumePoint } from "@/lib/watchApi";
-import type { KeepWatchingItem } from "@/lib/types";
+import { getResumePoint, getWatchProgress } from "@/lib/watchApi";
+import type { KeepWatchingItem, MovieSummary } from "@/lib/types";
 
 // Where to start a film for the signed-in viewer. Zero for everyone else, and for anyone who
 // has already finished it, so a completed trailer replays from the beginning.
@@ -28,7 +28,22 @@ export async function keepWatching(): Promise<KeepWatchingItem[]> {
     return [];
   }
 
-  const items = await getKeepWatching(accessToken);
+  const items = await getWatchProgress(accessToken, "in-progress");
 
   return items;
+}
+
+// The film the viewer most recently finished, or null. Completion rather than progress is
+// deliberate: "because you watched" is a claim about something they saw, not started.
+export async function lastCompleted(): Promise<MovieSummary | null> {
+  const store = await cookies();
+  const accessToken = store.get(ACCESS_COOKIE)?.value;
+
+  if (accessToken === undefined) {
+    return null;
+  }
+
+  const items = await getWatchProgress(accessToken, "completed");
+
+  return items[0]?.movie ?? null;
 }

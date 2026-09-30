@@ -40,8 +40,15 @@ export async function getResumePoint(
   return point;
 }
 
-export async function getKeepWatching(accessToken: string): Promise<KeepWatchingItem[]> {
-  const res = await fetch(apiUrl("/watch-progress"), {
+export type WatchStatus = "in-progress" | "completed";
+
+// The two home page rows read opposite sides of the same flag: Keep watching wants what is
+// unfinished, "Because you watched" wants what is done.
+export async function getWatchProgress(
+  accessToken: string,
+  status: WatchStatus,
+): Promise<KeepWatchingItem[]> {
+  const res = await fetch(apiUrl(`/watch-progress?status=${status}`), {
     headers: { Authorization: `Bearer ${accessToken}` },
     cache: "no-store",
   });
