@@ -86,10 +86,12 @@ export type HeroProps = {
 };
 
 export function Hero({ movie }: HeroProps) {
-  const metaLine =
-    movie.runtime === null
-      ? String(movie.releaseYear)
-      : `${movie.releaseYear} · ${formatRuntime(movie.runtime)}`;
+  // "2026 · 1h 30m · Adventure · Animation", minus the runtime when the catalogue has none
+  const metaLine = [
+    String(movie.releaseYear),
+    ...(movie.runtime === null ? [] : [formatRuntime(movie.runtime)]),
+    ...movie.genres.map((genre) => genre.name),
+  ].join(" · ");
 
   return (
     <Box component="section" aria-label="Featured" sx={hero}>

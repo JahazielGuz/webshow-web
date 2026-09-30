@@ -6,7 +6,7 @@ import { BecauseYouWatchedRow } from "@/components/BecauseYouWatchedRow";
 import { KeepWatchingRow } from "@/components/KeepWatchingRow";
 import { getBrowse, getMovie, getMovies } from "@/lib/api";
 import { neutral } from "@/lib/tokens";
-import type { Movie } from "@/lib/types";
+import type { BrowseRow, Movie, MovieSummary } from "@/lib/types";
 
 const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pb: 3 };
 const rows: SxProps<Theme> = { pt: 3 };
@@ -19,20 +19,41 @@ const empty: SxProps<Theme> = {
   color: neutral[400],
 };
 
+// The hero is an editorial pick rather than whatever happens to be most popular. There is no
+// search endpoint, so it is found by title among the rows the page has already loaded, and falls
+// back to the most popular movie if the title is not among them.
+const FEATURED_TITLE = "Minions & Monsters";
+
+function pickFeatured(
+  genreRows: BrowseRow[],
+  mostPopular: MovieSummary | undefined,
+): MovieSummary | undefined {
+  for (const { movies } of genreRows) {
+    const match = movies.find((movie) => movie.title === FEATURED_TITLE);
+
+    if (match !== undefined) {
+      return match;
+    }
+  }
+
+  return mostPopular;
+}
+
 // The catalogue itself: a hero and a row per genre. The home page is this and nothing else;
 // the movie page renders it too, so a modal reached by a direct link has its context behind it
 export async function Browse() {
   const [{ rows: genreRows }, { items }] = await Promise.all([
     getBrowse(),
+    // the fallback for the hero; /movies sorts by popularity
     getMovies({ limit: 1 }),
   ]);
 
-  // The hero features the most popular movie in the catalogue; /movies sorts by popularity
-  const [mostPopular] = items;
+  // the rows carry summaries, so the pick is fetched again in full for the hero's overview
+  const pick = pickFeatured(genreRows, items[0]);
   let featured: Movie | null = null;
 
-  if (mostPopular !== undefined) {
-    featured = await getMovie(mostPopular.id);
+  if (pick !== undefined) {
+    featured = await getMovie(pick.id);
   }
 
   if (genreRows.length === 0) {
