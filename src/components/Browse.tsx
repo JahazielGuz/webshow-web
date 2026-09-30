@@ -2,6 +2,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { GenreRow } from "@/components/GenreRow";
 import { Hero } from "@/components/Hero";
+import { BecauseYouWatchedRow } from "@/components/BecauseYouWatchedRow";
 import { KeepWatchingRow } from "@/components/KeepWatchingRow";
 import { getBrowse, getMovie, getMovies } from "@/lib/api";
 import { neutral } from "@/lib/tokens";
@@ -47,6 +48,7 @@ export async function Browse() {
       {featured !== null && <Hero movie={featured} />}
       <Stack spacing={4} sx={rows}>
         <KeepWatchingRow />
+        <BecauseYouWatchedRow />
         {genreRows.map(({ genre, movies }, index) => (
           <GenreRow key={genre.id} genre={genre} movies={movies} priority={index === 0} />
         ))}
