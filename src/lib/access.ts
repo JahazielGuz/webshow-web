@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { getMovies } from "@/lib/api";
+import { getSession } from "@/lib/session";
 
 // What a visitor gets without an account: a sample of the catalogue rather than a locked door.
 // /movies sorts by popularity, so the sample follows the catalogue instead of being a hand-kept
@@ -13,3 +14,17 @@ export const freeTitles = cache(async () => {
 
   return { items, total };
 });
+
+// Whether this visitor may open a film at all. An account opens the catalogue; without one only
+// the sample does. Every route that can reach a film asks this, so the rule has one home.
+export async function canOpen(movieId: string): Promise<boolean> {
+  const user = await getSession();
+
+  if (user !== null) {
+    return true;
+  }
+
+  const { items } = await freeTitles();
+
+  return items.some((movie) => movie.id === movieId);
+}
