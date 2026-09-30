@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { MovieDetail } from "@/components/MovieDetail";
 import { MovieModal } from "@/components/MovieModal";
+import { canOpen } from "@/lib/access";
 import { getMovie } from "@/lib/api";
 import { randomStart } from "@/lib/youtube";
 
@@ -12,6 +14,11 @@ export type MovieOverlayPageProps = {
 // history to step back to. An unknown id renders nothing and the route below answers 404.
 export default async function MovieOverlayPage({ params }: MovieOverlayPageProps) {
   const { id } = await params;
+
+  if (!(await canOpen(id))) {
+    redirect("/register");
+  }
+
   const movie = await getMovie(id);
 
   if (movie === null) {

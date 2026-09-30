@@ -1,7 +1,9 @@
 import { Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { redirect } from "next/navigation";
 import { MovieDetail } from "@/components/MovieDetail";
 import { MovieModal } from "@/components/MovieModal";
+import { canOpen } from "@/lib/access";
 import { getMovie } from "@/lib/api";
 import { neutral } from "@/lib/tokens";
 import { randomStart } from "@/lib/youtube";
@@ -17,6 +19,11 @@ export type MovieModalPageProps = {
 
 export default async function MovieModalPage({ params }: MovieModalPageProps) {
   const { id } = await params;
+
+  if (!(await canOpen(id))) {
+    redirect("/register");
+  }
+
   const movie = await getMovie(id);
 
   // A stale link (for example after a reseed) gets a small message, not a full-page 404

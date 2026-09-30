@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { Browse } from "@/components/Browse";
+import { notFound, redirect } from "next/navigation";
+import { HomeSurface } from "@/components/HomeSurface";
+import { canOpen } from "@/lib/access";
 import { getMovie } from "@/lib/api";
 
 export type MoviePageProps = {
@@ -14,16 +15,22 @@ export async function generateMetadata({ params }: MoviePageProps): Promise<Meta
   return { title: movie === null ? "webshow" : movie.title };
 }
 
-// A direct load or refresh of a movie URL renders the browse page here, under the dialog the
+// A direct load or refresh of a movie URL renders the home page here, under the dialog the
 // modal slot puts in front of it, so the scene looks the same as it does after a click.
 // An unknown id is a real 404, and the slot renders nothing for it.
 export default async function MoviePage({ params }: MoviePageProps) {
   const { id } = await params;
+
+  // Before the 404, so a visitor cannot learn which ids exist by which ones bounce them
+  if (!(await canOpen(id))) {
+    redirect("/register");
+  }
+
   const movie = await getMovie(id);
 
   if (movie === null) {
     notFound();
   }
 
-  return <Browse />;
+  return <HomeSurface />;
 }

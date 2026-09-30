@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { FullscreenPlayer } from "@/components/FullscreenPlayer";
+import { canOpen } from "@/lib/access";
 import { getMovie } from "@/lib/api";
 import { resumeSeconds } from "@/lib/watchProgress";
 
@@ -18,6 +19,11 @@ export async function generateMetadata({ params }: WatchPageProps): Promise<Meta
 // Reached by a direct load or refresh: the player is the whole page, and Back goes home
 export default async function WatchPage({ params }: WatchPageProps) {
   const { id } = await params;
+
+  if (!(await canOpen(id))) {
+    redirect("/register");
+  }
+
   const movie = await getMovie(id);
   const startAt = await resumeSeconds(id);
 
