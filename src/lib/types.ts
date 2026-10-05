@@ -19,6 +19,7 @@ export type Movie = MovieSummary & {
 };
 
 // Response envelopes - match webshow-core's controllers exactly
+export type SearchResponse = { items: MovieSummary[]; total: number };
 export type GenresResponse = { items: Genre[] };
 
 export type BrowseRow = { genre: Genre; movies: MovieSummary[] };

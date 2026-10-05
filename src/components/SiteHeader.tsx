@@ -1,7 +1,9 @@
 import { Box } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { NavLink } from "@/components/NavLink";
+import { SearchBox } from "@/components/SearchBox";
 import { SignOutButton } from "@/components/SignOutButton";
+import { Suspense } from "react";
 import { getSession } from "@/lib/session";
 import { focusRing, neutral, transition } from "@/lib/tokens";
 
@@ -64,6 +66,10 @@ export async function SiteHeader() {
         </NavLink>
       ) : (
         <>
+          {/* reads the query from the URL, which makes the subtree need a Suspense boundary */}
+          <Suspense>
+            <SearchBox />
+          </Suspense>
           <NavLink href="/account" sx={account}>
             {user.displayName}
           </NavLink>
