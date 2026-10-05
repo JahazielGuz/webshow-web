@@ -1,4 +1,4 @@
-import type { BrowseResponse, Movie, MoviesResponse } from "@/lib/types";
+import type { BrowseResponse, Movie, MoviesResponse, SearchResponse } from "@/lib/types";
 
 const baseUrl = process.env.API_BASE_URL;
 
@@ -46,6 +46,13 @@ export function getMovies(query: MoviesQuery = {}) {
   }
 
   return apiGet<MoviesResponse>(`/movies?${params}`);
+}
+
+// GET /search?q= — title, cast and genre in one go, ranked by where the match landed
+export function searchMovies(query: string, limit = 24) {
+  const params = new URLSearchParams({ q: query, limit: String(limit) });
+
+  return apiGet<SearchResponse>(`/search?${params}`);
 }
 
 export async function getMovie(id: string): Promise<Movie | null> {
