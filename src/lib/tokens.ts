@@ -10,6 +10,12 @@ export const neutral = {
   100: "#f5f5f5",
 } as const;
 
+// The page gutter. Netflix holds its header, its banner and every row to the same percentage of
+// the viewport rather than to a pixel value, so the layout keeps its proportions from a laptop to
+// a television. Measured off their page at roughly 3.4% a side, with a floor on phones, where a
+// percentage of 375px would leave almost no margin at all.
+export const gutter = { xs: 2, sm: "3.4%" };
+
 // How wide a poster is at each breakpoint. Shared, because a grid of posters has to size its
 // columns to this exactly: a column narrower than the tile is a gap the tile eats.
 export const posterWidth = { xs: 128, sm: 144, md: 160 } as const;
