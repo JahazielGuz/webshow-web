@@ -1,7 +1,7 @@
 "use client";
 
 import { keyframes } from "@emotion/react";
-import { Box, Button, Link, Stack, Typography } from "@mui/material";
+import { Box, IconButton, Link, Stack, SvgIcon, Tooltip, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import NextLink from "next/link";
@@ -51,24 +51,21 @@ const title: SxProps<Theme> = {
   color: neutral[100],
 };
 const year: SxProps<Theme> = { fontSize: "0.875rem", lineHeight: "1.25rem", color: neutral[400] };
+// The label moves into a tooltip, so the control is a ringed circle holding a chevron
+const CHEVRON = "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z";
+
 const moreInfo: SxProps<Theme> = {
-  // pill, sized to its label
   alignSelf: "flex-start",
-  minWidth: 0,
-  borderRadius: 9999,
-  px: 1.5,
-  py: 0.5,
-  fontSize: "0.875rem",
-  lineHeight: "1.25rem",
-  fontWeight: 500,
-  // colour
-  bgcolor: neutral[100],
-  color: neutral[900],
-  // interaction
+  width: 34,
+  height: 34,
+  border: `2px solid ${neutral[400]}`,
+  color: neutral[100],
+  bgcolor: "rgba(42, 42, 42, 0.6)",
   transition,
-  "&:hover": { bgcolor: "#fff" },
+  "&:hover": { borderColor: "#fff", color: "#fff", bgcolor: "rgba(42, 42, 42, 0.9)" },
   ...focusRing,
 };
+const chevron: SxProps<Theme> = { fontSize: 20 };
 
 export type HoverCardProps = {
   movie: MovieSummary;
@@ -102,9 +99,18 @@ export function HoverCard({ movie, anchor }: HoverCardProps) {
           {movie.title}
         </Typography>
         <Typography sx={year}>{movie.releaseYear}</Typography>
-        <Button component={NextLink} href={`/movies/${movie.id}`} sx={moreInfo}>
-          More info
-        </Button>
+        <Tooltip title="More info" placement="top" arrow>
+          <IconButton
+            component={NextLink}
+            href={`/movies/${movie.id}`}
+            aria-label="More info"
+            sx={moreInfo}
+          >
+            <SvgIcon sx={chevron}>
+              <path d={CHEVRON} />
+            </SvgIcon>
+          </IconButton>
+        </Tooltip>
       </Stack>
     </Box>
   );
