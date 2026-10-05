@@ -72,14 +72,25 @@ export type HoverCardProps = {
   anchor: DOMRect;
 };
 
-// Grow around the tile: 1.5x its width, centred on it, kept 8px inside the viewport
+// Grow around the tile: 1.5x its width, centred on it, kept 8px inside the viewport on every
+// side. The card is half as tall again as it is wide, so a tile in the last row of a page or at
+// the foot of a dialog would otherwise open a card that runs off the bottom of the window and
+// gets cut in half. Height is estimated rather than measured, because where to put the card is
+// decided before it exists: the poster is a fixed 2:3 and the body under it is a title, a year
+// and a button, which is the constant below.
+const BODY_HEIGHT = 118;
+
 function placeOver(anchor: DOMRect) {
   const width = Math.min(anchor.width * SCALE, MAX_WIDTH);
+  const height = width * 1.5 + BODY_HEIGHT;
   const centred = anchor.left + (anchor.width - width) / 2;
   const maxLeft = window.innerWidth - width - VIEWPORT_GUTTER;
   const left = Math.min(Math.max(centred, VIEWPORT_GUTTER), maxLeft);
+  // a card taller than the window is pinned to the top of it rather than pushed off the top
+  const maxTop = Math.max(window.innerHeight - height - VIEWPORT_GUTTER, VIEWPORT_GUTTER);
+  const top = Math.min(anchor.top, maxTop);
 
-  return { width, left, top: anchor.top };
+  return { width, left, top };
 }
 
 export function HoverCard({ movie, anchor }: HoverCardProps) {
