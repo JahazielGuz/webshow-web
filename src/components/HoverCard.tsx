@@ -70,6 +70,8 @@ const chevron: SxProps<Theme> = { fontSize: 20 };
 export type HoverCardProps = {
   movie: MovieSummary;
   anchor: DOMRect;
+  // see PosterTile: inside a dialog, one film replaces another rather than stacking
+  replace?: boolean;
 };
 
 // Grow around the tile: 1.5x its width, centred on it, kept 8px inside the viewport on every
@@ -93,7 +95,7 @@ function placeOver(anchor: DOMRect) {
   return { width, left, top };
 }
 
-export function HoverCard({ movie, anchor }: HoverCardProps) {
+export function HoverCard({ movie, anchor, replace = false }: HoverCardProps) {
   return (
     <Box sx={card} style={placeOver(anchor)}>
       <Link
@@ -114,6 +116,7 @@ export function HoverCard({ movie, anchor }: HoverCardProps) {
           <IconButton
             component={NextLink}
             href={`/movies/${movie.id}`}
+            replace={replace}
             aria-label="More info"
             sx={moreInfo}
           >
