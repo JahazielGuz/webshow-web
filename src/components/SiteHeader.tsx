@@ -5,7 +5,7 @@ import { SearchBox } from "@/components/SearchBox";
 import { SignOutButton } from "@/components/SignOutButton";
 import { Suspense } from "react";
 import { getSession } from "@/lib/session";
-import { focusRing, neutral, transition } from "@/lib/tokens";
+import { focusRing, gutter, neutral, transition } from "@/lib/tokens";
 
 const bar: SxProps<Theme> = {
   // over the page, not above it, so the hero still starts at the top of the viewport
@@ -17,7 +17,7 @@ const bar: SxProps<Theme> = {
   display: "flex",
   alignItems: "center",
   gap: 2,
-  px: { xs: 2, md: 5 },
+  px: gutter,
   py: { xs: 1.5, md: 2 },
   backgroundImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0))",
 };

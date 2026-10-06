@@ -1,6 +1,6 @@
 import { Box, Skeleton, Stack } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { neutral } from "@/lib/tokens";
+import { gutter, neutral } from "@/lib/tokens";
 
 const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pb: 3 };
 // the hero's reserved height
@@ -25,7 +25,7 @@ const strip: SxProps<Theme> = {
   gap: 2,
   overflow: "hidden",
   // side gutters
-  px: { xs: 2, md: 3 },
+  px: gutter,
 };
 const poster: SxProps<Theme> = {
   // the same 2:3 box as a real tile

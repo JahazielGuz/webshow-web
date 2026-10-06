@@ -5,14 +5,15 @@ import { Hero } from "@/components/Hero";
 import { BecauseYouWatchedRow } from "@/components/BecauseYouWatchedRow";
 import { KeepWatchingRow } from "@/components/KeepWatchingRow";
 import { getBrowse, getMovie, getMovies } from "@/lib/api";
-import { neutral } from "@/lib/tokens";
+import { gutter, neutral } from "@/lib/tokens";
 import type { BrowseRow, Movie, MovieSummary } from "@/lib/types";
 
-const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pb: 3 };
+// The bottom padding is room for the last row's hover card, which is taller than its tile
+const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pb: 10 };
 const rows: SxProps<Theme> = { pt: 3 };
 const empty: SxProps<Theme> = {
   // gutter + spacing
-  px: { xs: 2, md: 3 },
+  px: gutter,
   py: 8,
   // type
   textAlign: "center",

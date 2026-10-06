@@ -2,10 +2,10 @@ import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import { PosterTile } from "@/components/PosterTile";
 import { searchMovies } from "@/lib/api";
-import { neutral, posterWidth } from "@/lib/tokens";
+import { gutter, neutral, posterWidth } from "@/lib/tokens";
 
 const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pt: 12, pb: 6 };
-const column: SxProps<Theme> = { px: { xs: 2, md: 3 } };
+const column: SxProps<Theme> = { px: gutter };
 const heading: SxProps<Theme> = {
   fontSize: { xs: "1.25rem", md: "1.5rem" },
   fontWeight: 600,
