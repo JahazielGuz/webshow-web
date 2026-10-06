@@ -7,7 +7,10 @@ import { TrailerHeader } from "@/components/TrailerHeader";
 import { neutral } from "@/lib/tokens";
 import type { Movie } from "@/lib/types";
 
-const body: SxProps<Theme> = { px: 3, py: 2.5 };
+// The row of similar films is the last thing in the dialog, and hovering one grows a card that
+// is taller than the tile. The extra room below lets that card open into space instead of over
+// the cast, and lets the row be scrolled up to meet it.
+const body: SxProps<Theme> = { px: 3, pt: 2.5, pb: 8 };
 const overview: SxProps<Theme> = { lineHeight: 1.625, color: neutral[200] };
 
 export type MovieDetailProps = {
