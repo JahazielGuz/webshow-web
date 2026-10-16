@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: WatchPageProps): Promise<Meta
   const { id } = await params;
   const movie = await getMovie(id);
 
-  return { title: movie === null ? "webshow" : `Watch ${movie.title}` };
+  return { title: movie === null ? "Websho" : `Watch ${movie.title}` };
 }
 
 // Reached by a direct load or refresh: the player is the whole page, and Back goes home

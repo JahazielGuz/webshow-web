@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: MoviePageProps): Promise<Meta
   const { id } = await params;
   const movie = await getMovie(id);
 
-  return { title: movie === null ? "webshow" : movie.title };
+  return { title: movie === null ? "Websho" : movie.title };
 }
 
 // A direct load or refresh of a movie URL renders the home page here, under the dialog the

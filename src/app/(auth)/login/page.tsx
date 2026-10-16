@@ -5,7 +5,7 @@ import { AuthForm } from "@/components/AuthForm";
 import { NavLink } from "@/components/NavLink";
 import { getSession } from "@/lib/session";
 
-export const metadata: Metadata = { title: "Sign in — webshow" };
+export const metadata: Metadata = { title: "Sign in · Websho" };
 
 export default async function LoginPage() {
   const user = await getSession();
@@ -22,7 +22,7 @@ export default async function LoginPage() {
       action={signIn}
       footer={
         <>
-          New to webshow? <NavLink href="/register">Create an account</NavLink>.
+          New to Websho? <NavLink href="/register">Create an account</NavLink>.
         </>
       }
     />

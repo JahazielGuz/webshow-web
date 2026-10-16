@@ -5,7 +5,7 @@ import { AuthForm } from "@/components/AuthForm";
 import { NavLink } from "@/components/NavLink";
 import { getSession } from "@/lib/session";
 
-export const metadata: Metadata = { title: "Create an account — webshow" };
+export const metadata: Metadata = { title: "Create an account · Websho" };
 
 export default async function RegisterPage() {
   const user = await getSession();

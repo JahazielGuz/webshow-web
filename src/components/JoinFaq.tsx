@@ -49,7 +49,7 @@ const answer: SxProps<Theme> = {
 
 const questions = [
   {
-    question: "What is webshow?",
+    question: "What is Websho?",
     answer:
       "A film catalogue you browse the way you would a streaming service: rows by genre, a page for every title, cast and runtime and a trailer that plays full screen. The films are real and so are the trailers. It is a portfolio project rather than a subscription, so there is nothing to cancel.",
   },

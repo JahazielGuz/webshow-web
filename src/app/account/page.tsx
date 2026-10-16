@@ -6,7 +6,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { getSession } from "@/lib/session";
 import { neutral } from "@/lib/tokens";
 
-export const metadata: Metadata = { title: "Account — webshow" };
+export const metadata: Metadata = { title: "Account · Websho" };
 
 const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pt: 12, pb: 6, px: 2 };
 const column: SxProps<Theme> = { mx: "auto", width: "min(100%, 32rem)" };
