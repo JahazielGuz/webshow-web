@@ -30,12 +30,12 @@ const shell: SxProps<Theme> = {
   overflow: "hidden",
 };
 const stage: SxProps<Theme> = {
-  // the largest 16:9 box that fits, centred (letterboxed)
+  // The whole screen, not a 16:9 box around the picture. YouTube letterboxes the picture inside
+  // its own frame and draws its title bar and "more videos" row along the frame's edges, so on a
+  // screen taller than 16:9, such as a phone held upright, they land on the black bars above and
+  // below the picture, and so do the shutters that hide them.
   position: "absolute",
   inset: 0,
-  m: "auto",
-  width: "min(100vw, calc(100dvh * 16 / 9))",
-  aspectRatio: "16 / 9",
 };
 const layer: SxProps<Theme> = { position: "absolute", inset: 0 };
 const host: SxProps<Theme> = {
@@ -63,7 +63,7 @@ const bigButton: SxProps<Theme> = {
 };
 const bigIcon: SxProps<Theme> = { fontSize: 64 };
 const spinner: SxProps<Theme> = { ...dim, bgcolor: "transparent", pointerEvents: "none" };
-// opaque strips over the top and bottom of the stage, where YouTube draws its title bar and
+// opaque strips over the top and bottom of the screen, where YouTube draws its title bar and
 // its "more videos" row; shown together with our chrome
 const shutter = {
   position: "absolute",
