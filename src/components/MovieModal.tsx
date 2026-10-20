@@ -5,7 +5,7 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import type { OverlayExit } from "@/lib/overlayExit";
-import { focusRing, neutral, transition } from "@/lib/tokens";
+import { focusRing, neutral, touchScreen, transition } from "@/lib/tokens";
 
 const paper: SxProps<Theme> = {
   // centred sheet that scrolls inside itself
@@ -18,6 +18,9 @@ const paper: SxProps<Theme> = {
   bgcolor: neutral[900],
   backgroundImage: "none",
   color: neutral[100],
+  // on a touch screen the details are where a tap on a poster lands, so they fill the screen
+  // like a page of their own rather than floating over the row the viewer tapped
+  [`@media ${touchScreen}`]: { width: "100%", height: "100%", maxHeight: "none", borderRadius: 0 },
 };
 // dimmed page behind it
 const backdrop: SxProps<Theme> = { bgcolor: "rgba(0, 0, 0, 0.7)" };

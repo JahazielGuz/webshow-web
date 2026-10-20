@@ -29,6 +29,11 @@ export const transition = [
   "transform 150ms cubic-bezier(0.4, 0, 0.2, 1)",
 ].join(", ");
 
+// A screen whose main pointer cannot hover, such as a phone or a tablet. With no hover card to
+// preview a film, a tap opens its details, the details fill the screen, and nothing plays until
+// the viewer presses Play.
+export const touchScreen = "(hover: none)";
+
 // White 2px keyboard focus ring, only for :focus-visible
 export const focusRing = {
   "&:focus": { outline: "none" },

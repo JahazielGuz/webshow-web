@@ -9,7 +9,7 @@ import { AmbientTrailer } from "@/components/AmbientTrailer";
 import { PlayerIcon } from "@/components/PlayerIcon";
 import { SpeakerIcon } from "@/components/SpeakerIcon";
 import { TitleTreatment } from "@/components/TitleTreatment";
-import { focusRing, neutral, transition } from "@/lib/tokens";
+import { focusRing, neutral, touchScreen, transition } from "@/lib/tokens";
 import { youtubeVideoId } from "@/lib/youtube";
 
 // 16:9 header box
@@ -52,6 +52,8 @@ const mute: SxProps<Theme> = {
   transition,
   "&:hover": { borderColor: "#fff", bgcolor: "transparent" },
   ...focusRing,
+  // no clip plays behind the header on a touch screen, so there is nothing to unmute
+  [`@media ${touchScreen}`]: { display: "none" },
 };
 
 export type TrailerHeaderProps = {
