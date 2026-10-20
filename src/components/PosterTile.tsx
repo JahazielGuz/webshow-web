@@ -13,7 +13,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { HoverCard } from "@/components/HoverCard";
-import { focusRing, neutral, transition } from "@/lib/tokens";
+import { focusRing, neutral, posterWidth, transition } from "@/lib/tokens";
 import type { MovieSummary } from "@/lib/types";
 
 const OPEN_DELAY_MS = 300;
@@ -22,7 +22,7 @@ const tile: SxProps<Theme> = { flexShrink: 0 };
 const link: SxProps<Theme> = {
   // box + responsive width
   display: "block",
-  width: { xs: 128, sm: 144, md: 160 },
+  width: posterWidth,
   // shape
   borderRadius: 2,
   // hover zooms the poster

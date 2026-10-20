@@ -10,6 +10,10 @@ export const neutral = {
   100: "#f5f5f5",
 } as const;
 
+// How wide a poster is at each breakpoint. Shared, because a grid of posters has to size its
+// columns to this exactly: a column narrower than the tile is a gap the tile eats.
+export const posterWidth = { xs: 128, sm: 144, md: 160 } as const;
+
 // 150 ms ease on the properties Tailwind's `transition` utility covered
 export const transition = [
   "color 150ms cubic-bezier(0.4, 0, 0.2, 1)",
