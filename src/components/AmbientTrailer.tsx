@@ -4,7 +4,7 @@ import { Box } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { neutral } from "@/lib/tokens";
+import { neutral, touchScreen } from "@/lib/tokens";
 import { hideCaptions, loadYouTubeApi } from "@/lib/youtubeApi";
 
 // The banner stays this long after the clip mounts, and no longer once the video is playing
@@ -61,7 +61,9 @@ export function AmbientTrailer({ videoId, start, muted, coverUrl, title }: Ambie
   useEffect(() => {
     const host = hostRef.current;
 
-    if (host === null) {
+    // On a touch screen nothing plays until the viewer presses Play, so the clip is never
+    // loaded and the backdrop stays up
+    if (host === null || window.matchMedia(touchScreen).matches) {
       return;
     }
 

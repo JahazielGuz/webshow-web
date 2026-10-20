@@ -4,6 +4,7 @@ import { Box, Link } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import NextLink from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useEffect,
   useRef,
@@ -11,9 +12,10 @@ import {
   type CSSProperties,
   type FocusEvent,
   type KeyboardEvent,
+  type MouseEvent,
 } from "react";
 import { HoverCard } from "@/components/HoverCard";
-import { focusRing, neutral, posterWidth, transition } from "@/lib/tokens";
+import { focusRing, neutral, posterWidth, touchScreen, transition } from "@/lib/tokens";
 import type { MovieSummary } from "@/lib/types";
 
 const OPEN_DELAY_MS = 300;
@@ -63,7 +65,13 @@ export type PosterTileProps = {
   replace?: boolean;
 };
 
-export function PosterTile({ movie, priority = false, progress, replace = false }: PosterTileProps) {
+export function PosterTile({
+  movie,
+  priority = false,
+  progress,
+  replace = false,
+}: PosterTileProps) {
+  const router = useRouter();
   const linkRef = useRef<HTMLAnchorElement>(null);
   const timer = useRef(0);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
@@ -82,11 +90,28 @@ export function PosterTile({ movie, priority = false, progress, replace = false 
 
   // Hover intent: only open after the pointer has rested on the tile
   function handleMouseEnter() {
-    if (window.matchMedia("(hover: none)").matches) {
+    if (window.matchMedia(touchScreen).matches) {
       return;
     }
 
     timer.current = window.setTimeout(openCard, OPEN_DELAY_MS);
+  }
+
+  // A touch screen has no hover card to show what a film is before it plays, so a tap opens the
+  // details instead, and playing it is a second, deliberate press. The link still points at the
+  // player, which is where a click with a mouse goes.
+  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (!window.matchMedia(touchScreen).matches) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (replace) {
+      router.replace(`/movies/${movie.id}`);
+    } else {
+      router.push(`/movies/${movie.id}`);
+    }
   }
 
   // Keyboard focus opens the card; a mouse click is already a navigation
@@ -142,6 +167,7 @@ export function PosterTile({ movie, priority = false, progress, replace = false 
         ref={linkRef}
         component={NextLink}
         href={`/watch/${movie.id}`}
+        onClick={handleClick}
         underline="none"
         sx={link}
         aria-expanded={open}
