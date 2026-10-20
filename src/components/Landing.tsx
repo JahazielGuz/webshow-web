@@ -7,11 +7,11 @@ import { LandingHero, joinButton } from "@/components/LandingHero";
 import { NavLink } from "@/components/NavLink";
 import { freeTitles } from "@/lib/access";
 import { getMovie } from "@/lib/api";
-import { neutral } from "@/lib/tokens";
+import { gutter, neutral } from "@/lib/tokens";
 
 const main: SxProps<Theme> = { minHeight: "100dvh", bgcolor: neutral[950], pb: 10 };
 const sections: SxProps<Theme> = { pt: 6 };
-const closing: SxProps<Theme> = { px: { xs: 2, md: 3 }, alignItems: "center", textAlign: "center" };
+const closing: SxProps<Theme> = { px: gutter, alignItems: "center", textAlign: "center" };
 const closingHeading: SxProps<Theme> = {
   fontSize: { xs: "1.5rem", md: "2rem" },
   fontWeight: 700,

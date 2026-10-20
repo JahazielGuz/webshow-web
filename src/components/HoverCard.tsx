@@ -1,7 +1,7 @@
 "use client";
 
 import { keyframes } from "@emotion/react";
-import { Box, Button, Link, Stack, Typography } from "@mui/material";
+import { Box, IconButton, Link, Stack, SvgIcon, Tooltip, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import Image from "next/image";
 import NextLink from "next/link";
@@ -51,41 +51,51 @@ const title: SxProps<Theme> = {
   color: neutral[100],
 };
 const year: SxProps<Theme> = { fontSize: "0.875rem", lineHeight: "1.25rem", color: neutral[400] };
+// The label moves into a tooltip, so the control is a ringed circle holding a chevron
+const CHEVRON = "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z";
+
 const moreInfo: SxProps<Theme> = {
-  // pill, sized to its label
   alignSelf: "flex-start",
-  minWidth: 0,
-  borderRadius: 9999,
-  px: 1.5,
-  py: 0.5,
-  fontSize: "0.875rem",
-  lineHeight: "1.25rem",
-  fontWeight: 500,
-  // colour
-  bgcolor: neutral[100],
-  color: neutral[900],
-  // interaction
+  width: 34,
+  height: 34,
+  border: `2px solid ${neutral[400]}`,
+  color: neutral[100],
+  bgcolor: "rgba(42, 42, 42, 0.6)",
   transition,
-  "&:hover": { bgcolor: "#fff" },
+  "&:hover": { borderColor: "#fff", color: "#fff", bgcolor: "rgba(42, 42, 42, 0.9)" },
   ...focusRing,
 };
+const chevron: SxProps<Theme> = { fontSize: 20 };
 
 export type HoverCardProps = {
   movie: MovieSummary;
   anchor: DOMRect;
+  // see PosterTile: inside a dialog, one film replaces another rather than stacking
+  replace?: boolean;
 };
 
-// Grow around the tile: 1.5x its width, centred on it, kept 8px inside the viewport
+// Grow around the tile: 1.5x its width, centred on it, kept 8px inside the viewport on every
+// side. The card is half as tall again as it is wide, so a tile in the last row of a page or at
+// the foot of a dialog would otherwise open a card that runs off the bottom of the window and
+// gets cut in half. Height is estimated rather than measured, because where to put the card is
+// decided before it exists: the poster is a fixed 2:3 and the body under it is a title, a year
+// and a button, which is the constant below.
+const BODY_HEIGHT = 118;
+
 function placeOver(anchor: DOMRect) {
   const width = Math.min(anchor.width * SCALE, MAX_WIDTH);
+  const height = width * 1.5 + BODY_HEIGHT;
   const centred = anchor.left + (anchor.width - width) / 2;
   const maxLeft = window.innerWidth - width - VIEWPORT_GUTTER;
   const left = Math.min(Math.max(centred, VIEWPORT_GUTTER), maxLeft);
+  // a card taller than the window is pinned to the top of it rather than pushed off the top
+  const maxTop = Math.max(window.innerHeight - height - VIEWPORT_GUTTER, VIEWPORT_GUTTER);
+  const top = Math.min(anchor.top, maxTop);
 
-  return { width, left, top: anchor.top };
+  return { width, left, top };
 }
 
-export function HoverCard({ movie, anchor }: HoverCardProps) {
+export function HoverCard({ movie, anchor, replace = false }: HoverCardProps) {
   return (
     <Box sx={card} style={placeOver(anchor)}>
       <Link
@@ -102,9 +112,19 @@ export function HoverCard({ movie, anchor }: HoverCardProps) {
           {movie.title}
         </Typography>
         <Typography sx={year}>{movie.releaseYear}</Typography>
-        <Button component={NextLink} href={`/movies/${movie.id}`} sx={moreInfo}>
-          More info
-        </Button>
+        <Tooltip title="More info" placement="top" arrow>
+          <IconButton
+            component={NextLink}
+            href={`/movies/${movie.id}`}
+            replace={replace}
+            aria-label="More info"
+            sx={moreInfo}
+          >
+            <SvgIcon sx={chevron}>
+              <path d={CHEVRON} />
+            </SvgIcon>
+          </IconButton>
+        </Tooltip>
       </Stack>
     </Box>
   );

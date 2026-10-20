@@ -48,21 +48,28 @@ export function SearchBox() {
   const [value, setValue] = useState(active);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // The last query this box put in the URL. Compared against, rather than against what is in the
+  // URL now, because those differ for a second reason: opening a film's dialog navigates to
+  // /movies/:id and takes the query string with it. Correcting that would bounce the viewer
+  // straight back out of the dialog they just opened, which is what it used to do.
+  const pushed = useRef(active);
+
   // Typing drives the URL, and the URL drives the page. Debounced, so a word costs one request
   // rather than one per letter.
   useEffect(() => {
-    if (value === active) {
+    if (value === pushed.current) {
       return;
     }
 
     const timer = window.setTimeout(() => {
       const trimmed = value.trim();
 
+      pushed.current = trimmed;
       router.replace(trimmed === "" ? "/" : `/?q=${encodeURIComponent(trimmed)}`);
     }, DEBOUNCE_MS);
 
     return () => window.clearTimeout(timer);
-  }, [value, active, router]);
+  }, [value, router]);
 
   function show() {
     setOpen(true);
@@ -74,6 +81,7 @@ export function SearchBox() {
   function close() {
     setOpen(false);
     setValue("");
+    pushed.current = "";
     router.replace("/");
   }
 

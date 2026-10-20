@@ -28,7 +28,11 @@ export async function SimilarTitlesRow({ movieId, limit = 12 }: SimilarTitlesRow
   return (
     <TileRow title="More like this" flush>
       {movies.map((movie) => (
-        <PosterTile key={movie.id} movie={movie} />
+        // These tiles are inside the dialog, so opening one replaces the film on screen rather
+        // than stacking another entry. Otherwise browsing four films in a row leaves four behind
+        // it, and closing walks back through them one at a time instead of returning to the page
+        // the viewer actually came from.
+        <PosterTile key={movie.id} movie={movie} replace />
       ))}
     </TileRow>
   );

@@ -5,14 +5,18 @@ import type { CSSProperties } from "react";
 import { NavLink } from "@/components/NavLink";
 import { PlayerIcon } from "@/components/PlayerIcon";
 import { formatRuntime } from "@/lib/format";
-import { focusRing, neutral, transition } from "@/lib/tokens";
+import { focusRing, gutter, neutral, transition } from "@/lib/tokens";
 import type { Movie } from "@/lib/types";
 
 const hero: SxProps<Theme> = {
-  // full-bleed banner with a reserved height, so nothing below it moves while the image loads
+  // Inset to the page gutter rather than bled to the edges, so the banner lines up with the rows
+  // under it and the whole page reads as one column. A reserved height keeps the rows from moving
+  // while the image loads.
   position: "relative",
   height: { xs: 420, md: "56vh" },
   minHeight: 360,
+  mx: gutter,
+  borderRadius: 1,
   overflow: "hidden",
   bgcolor: neutral[900],
 };

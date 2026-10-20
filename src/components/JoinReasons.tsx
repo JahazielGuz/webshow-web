@@ -1,8 +1,8 @@
 import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { neutral } from "@/lib/tokens";
+import { gutter, neutral } from "@/lib/tokens";
 
-const section: SxProps<Theme> = { px: { xs: 2, md: 3 } };
+const section: SxProps<Theme> = { px: gutter };
 const heading: SxProps<Theme> = {
   fontSize: { xs: "1.5rem", md: "2rem" },
   fontWeight: 700,

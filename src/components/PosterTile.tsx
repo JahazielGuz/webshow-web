@@ -58,9 +58,12 @@ export type PosterTileProps = {
   // 0 to 1 when the viewer has started this film. Absent everywhere else, which is what keeps
   // the bar out of the genre rows without a second component.
   progress?: number;
+  // Replace the current history entry instead of pushing one. Set inside a dialog, so opening
+  // film after film does not build a stack that has to be unwound one entry at a time.
+  replace?: boolean;
 };
 
-export function PosterTile({ movie, priority = false, progress }: PosterTileProps) {
+export function PosterTile({ movie, priority = false, progress, replace = false }: PosterTileProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
   const timer = useRef(0);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
@@ -159,7 +162,7 @@ export function PosterTile({ movie, priority = false, progress }: PosterTileProp
           )}
         </Box>
       </Link>
-      {anchor !== null && <HoverCard movie={movie} anchor={anchor} />}
+      {anchor !== null && <HoverCard movie={movie} anchor={anchor} replace={replace} />}
     </Box>
   );
 }

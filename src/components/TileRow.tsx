@@ -1,11 +1,11 @@
 import { Box, Stack, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { ReactNode } from "react";
-import { neutral } from "@/lib/tokens";
+import { gutter, neutral } from "@/lib/tokens";
 
 const heading: SxProps<Theme> = {
   // gutter
-  px: { xs: 2, md: 3 },
+  px: gutter,
   // type
   fontSize: "1.125rem",
   lineHeight: "1.75rem",
@@ -18,9 +18,9 @@ const strip: SxProps<Theme> = {
   gap: 2,
   overflowX: "auto",
   // side gutters (align with the heading)
-  px: { xs: 2, md: 3 },
+  px: gutter,
   // keep a focused tile off the edge
-  scrollPaddingInline: { xs: "16px", md: "24px" },
+  scrollPaddingInline: gutter,
   // scroller focus ring
   "&:focus": { outline: "none" },
   "&:focus-visible": { boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.4)" },
