@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeRegistry } from "@/components/ThemeRegistry";
 
 export const metadata: Metadata = {
-  title: "webshow",
+  title: "Websho",
   description: "A Netflix-style movie catalogue",
 };
 

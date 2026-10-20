@@ -57,7 +57,7 @@ export async function SiteHeader() {
   return (
     <Box component="header" sx={bar}>
       <NavLink href="/" sx={wordmark}>
-        webshow
+        Websho
       </NavLink>
       <Box sx={spacer} />
       {user === null ? (
